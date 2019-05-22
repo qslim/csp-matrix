@@ -59,7 +59,8 @@ class BackTrackSearcher:
         return False
 
 
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
+# N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
+N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-40_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 
 
@@ -68,7 +69,8 @@ bs = BackTrackSearcher(cons_map, N, D)
 ticks = time.time()
 
 if bs.dfs(0, vars_map):
-    print(bs.answer.squeeze())
+    print("got answer...")
+    # print(bs.answer.squeeze())
 else:
     print("no answer...")
 

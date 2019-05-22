@@ -22,7 +22,7 @@ def parser(path):
     for variable in variables:
         line = []
         for i in range(max_dom):
-            line.append(i)
+            line.append(1)
 
         vars_map.append(line)
 
@@ -30,6 +30,7 @@ def parser(path):
     # vars_map = np.matmul(vars_map, mask)
     # vars_map = np.where(vars_map < 444, -1, vars_map)
     vars_map = np.array(vars_map)
+    # print(vars_map)
     vars_map = np.expand_dims(vars_map, 2)
 
     # print(vars_map.shape)
@@ -108,11 +109,12 @@ def parser(path):
     cons_map = np.array(cons_map)
 
     # print(cons_map.shape)
-    # print(cons_map[6][25])
-    # print(cons_map[25][6])
+    # print(cons_map[0][3])
+    # print(cons_map[3][0])
 
     return num_vars, max_dom, vars_map, cons_map
 
 
 # parser("/home/ymq/Downloads/rand-2-30-15/rand-2-30-15-306-230-10_ext.xml")
+# parser("/home/ymq/csp_benchmark/run_dir/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-17_ext.xml")
 
