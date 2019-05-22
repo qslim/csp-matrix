@@ -112,7 +112,8 @@ def parser(path):
     # print(cons_map[0][3])
     # print(cons_map[3][0])
 
-    return num_vars, max_dom, vars_map, cons_map
+    # return num_vars, max_dom, vars_map, cons_map
+    return num_vars, max_dom, vars_map.transpose((0, 2, 1)), cons_map
 
 
 # parser("/home/ymq/Downloads/rand-2-30-15/rand-2-30-15-306-230-10_ext.xml")
