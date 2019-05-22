@@ -13,7 +13,7 @@ class ACEnforcer:
         vars_map_pre = None
         while (vars_map_pre != vars_map).any():
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-            vars_map_pre = vars_map.copy()
+            vars_map_pre = vars_map
 
             NN1D = np.matmul(vars_map, self.cons_map)
 
