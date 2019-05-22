@@ -9,6 +9,7 @@ alpha/
 *.egg-info/
 .coverage
 .coverage.*
+*.pyc
 
 !torch_geometric/data/
 !test/data/
