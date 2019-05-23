@@ -8,11 +8,14 @@ class ACEnforcer:
         self.var_mask = np.ones([N, 1, N])
         self.dom_mask = np.ones([D, 1])
         self.dummy = np.zeros([N, 1])
+        self.count = 0
 
     def ac_enforcer(self, vars_map):
         vars_map_pre = None
         while (vars_map_pre != vars_map).any():
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+            self.count += 1
+            
             vars_map_pre = vars_map
 
             NN1D = np.matmul(vars_map, self.cons_map)
