@@ -5,25 +5,29 @@ class ACEnforcer:
     def __init__(self, cons_map, N, D):
         self.N = N
         self.cons_map = cons_map
-        self.var_mask = np.ones([N, N, 1])
+        self.var_mask = np.ones([N, 1, N])
         self.dom_mask = np.ones([D, 1])
         self.dummy = np.zeros([N, 1])
+        self.count = 0
 
     def ac_enforcer(self, vars_map):
         vars_map_pre = None
         while (vars_map_pre != vars_map).any():
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+
+            self.count += 1
+
             vars_map_pre = vars_map
 
-            NND = np.matmul(self.cons_map, vars_map).squeeze()
+            NN1D = np.matmul(vars_map, self.cons_map)
 
-            NND = np.minimum(NND, 1)
+            NND = np.minimum(NN1D, 1).squeeze()
 
-            NDN = NND.transpose((0, 2, 1))
+            # NDN = NND.transpose((0, 2, 1))
 
-            ND1 = np.matmul(NDN, self.var_mask)
+            N1D = np.matmul(self.var_mask, NND)
 
-            vars_map = np.where(ND1 == self.N, 1, 0)
+            vars_map = np.where(N1D == self.N, 1, 0)
 
             if (np.matmul(vars_map.squeeze(), self.dom_mask) == self.dummy).any():
                 return None

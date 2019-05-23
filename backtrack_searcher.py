@@ -17,7 +17,7 @@ class BackTrackSearcher:
     def assignment(self, var_index, val_index, vars_pre):
         self.count += 1
         vars_re = copy.deepcopy(vars_pre)
-        var = vars_re[var_index]
+        var = vars_re[var_index][0]
         for p in range(self.D):
             var[p] = 0
         var[val_index] = 1
@@ -26,11 +26,11 @@ class BackTrackSearcher:
     def var_heuristics(self, vars_):
         dom = np.matmul(np.squeeze(vars_), self.var_mask).squeeze()
         dom = np.where(dom <= 1, 100000, dom)
-        min_val = dom.min()
-        if min_val == 100000:
+        min_index = dom.argmin()
+        if dom[min_index] == 100000:
             return -1
         # print(dom.argmin())
-        return dom.argmin()
+        return min_index
 
     def dfs(self, level, vars_pre):
         # print(level)
@@ -48,7 +48,7 @@ class BackTrackSearcher:
             self.answer = vars_pre
             return True
 
-        var = vars_pre[var_index]
+        var = vars_pre[var_index][0]
         for i in range(self.D):
             if var[i] == 0:
                 continue
@@ -60,7 +60,7 @@ class BackTrackSearcher:
 
 
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-11_ext.xml")
+N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-3_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 
 
@@ -74,6 +74,7 @@ if bs.dfs(0, vars_map):
 else:
     print("no answer...")
 
-print("Lasts: ", time.time() - ticks)
+print("Lasts =", time.time() - ticks)
 
 print("Node =", bs.count)
+print("Iterations =", bs.acer.count)
