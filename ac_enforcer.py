@@ -8,7 +8,6 @@ class ACEnforcer:
         self.N = N
         self.cons_map = cons_map
         self.n1n_mask1 = torch.ones((N, 1, N)).to(device)
-        self.d1_mask1 = torch.ones((D, 1)).to(device)
         self.n1_mask0 = torch.zeros((N, 1)).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
         self.n1d_mask1 = torch.ones((N, 1, D)).to(device)
@@ -32,7 +31,7 @@ class ACEnforcer:
 
             vars_map = torch.where(n1d == self.N, self.n1d_mask1, self.n1d_mask0)
 
-            if (torch.matmul(vars_map.squeeze(), self.d1_mask1) == self.n1_mask0).any():
+            if (vars_map.squeeze().sum(1) == self.n1_mask0).any():
                 return None
 
         return vars_map.squeeze()
