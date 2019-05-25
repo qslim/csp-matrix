@@ -4,23 +4,15 @@ import torch
 
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
-        # device = torch.device("cuda")
+        device = torch.device("cuda")
         self.N = N
         self.cons_map = cons_map
-
-        self.n1n_mask1 = torch.ones((N, 1, N))
-        self.d1_mask1 = torch.ones((D, 1))
-        self.n1_mask0 = torch.zeros((N, 1))
-        self.nnd_mask1 = torch.ones((N, N, D))
-        self.n1d_mask1 = torch.ones((N, 1, D))
-        self.n1d_mask0 = torch.zeros((N, 1, D))
-
-        # self.n1n_mask1 = torch.ones((N, 1, N)).to(device)
-        # self.d1_mask1 = torch.ones((D, 1)).to(device)
-        # self.n1_mask0 = torch.zeros((N, 1)).to(device)
-        # self.nnd_mask1 = torch.ones((N, N, D)).to(device)
-        # self.n1d_mask1 = torch.ones((N, 1, D)).to(device)
-        # self.n1d_mask0 = torch.zeros((N, 1, D)).to(device)
+        self.n1n_mask1 = torch.ones((N, 1, N)).to(device)
+        self.d1_mask1 = torch.ones((D, 1)).to(device)
+        self.n1_mask0 = torch.zeros((N, 1)).to(device)
+        self.nnd_mask1 = torch.ones((N, N, D)).to(device)
+        self.n1d_mask1 = torch.ones((N, 1, D)).to(device)
+        self.n1d_mask0 = torch.zeros((N, 1, D)).to(device)
         # self.count = 0
 
     def ac_enforcer(self, vars_map):
@@ -29,8 +21,6 @@ class ACEnforcer:
         vars_map_pre = self.n1d_mask0
         while torch.equal(vars_map, vars_map_pre) is False:
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-
-            # self.count += 1
 
             vars_map_pre = vars_map
 

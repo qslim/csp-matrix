@@ -4,7 +4,7 @@ from build_matrix import parser
 import time
 
 
-# device = torch.device("cuda")
+device = torch.device("cuda")
 
 
 class BackTrackSearcher:
@@ -12,13 +12,10 @@ class BackTrackSearcher:
         self.acer = ACEnforcer(rel_, N, D)
         self.D = D
         self.N = N
-        self.d1_mask1 = torch.ones((D, 1))
-        self.assign_mask = torch.eye(N)
-        self.n_mask10000 = (torch.ones(N) * 10000)
-        # self.d1_mask1 = torch.ones((D, 1)).to(device)
-        # self.assign_mask = torch.eye(N).to(device)
-        # self.n_mask10000 = (torch.ones(N) * 10000).to(device)
-        # self.count = 0
+        self.d1_mask1 = torch.ones((D, 1)).to(device)
+        self.assign_mask = torch.eye(N).to(device)
+        self.n_mask10000 = (torch.ones(N) * 10000).to(device)
+        self.count = 0
         self.answer = None
 
     def assignment(self, var_index, val_index, vars_pre):
@@ -64,12 +61,12 @@ class BackTrackSearcher:
 
 
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-16_ext.xml")
+N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-23/rand-2-50-23-587-230-4_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 # print(N.type(), " ", D.type(), " ", cons_map.type(), " ", vars_map.type())
 
-# vars_map = vars_map.to(device)
-# cons_map = cons_map.to(device)
+vars_map = vars_map.to(device)
+cons_map = cons_map.to(device)
 
 bs = BackTrackSearcher(cons_map, N, D)
 
