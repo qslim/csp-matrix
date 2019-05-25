@@ -12,7 +12,6 @@ class BackTrackSearcher:
         self.acer = ACEnforcer(rel_, N, D)
         self.D = D
         self.N = N
-        self.d1_mask1 = torch.ones((D, 1)).to(device)
         self.assign_mask = torch.eye(N).to(device)
         self.n_mask10000 = (torch.ones(N) * 10000).to(device)
         self.count = 0
@@ -27,7 +26,7 @@ class BackTrackSearcher:
         return vars_re
 
     def var_heuristics(self, vars_):
-        dom = torch.matmul(vars_, self.d1_mask1).squeeze()
+        dom = vars_.sum(1)
         dom = torch.where(dom == 1, self.n_mask10000, dom)
         min_index = dom.argmin().item()
         if dom[min_index] == 100000:
