@@ -22,24 +22,19 @@ class BackTrackSearcher:
         self.answer = None
 
     def assignment(self, var_index, val_index, vars_pre):
-        # print(var_index, " ", val_index)
         # self.count += 1
         self.assign_mask[var_index][var_index] = 0
-        # print(self.assign_mask)
-        vars_re = torch.matmul(self.assign_mask, vars_pre.squeeze())
+        vars_re = torch.matmul(self.assign_mask, vars_pre)
         self.assign_mask[var_index][var_index] = 1
         vars_re[var_index][val_index] = 1
-        # print(vars_re)
-        vars_re = vars_re.unsqueeze(1)
         return vars_re
 
     def var_heuristics(self, vars_):
         dom = torch.matmul(vars_, self.d1_mask1).squeeze()
         dom = torch.where(dom == 1, self.n_mask10000, dom)
-        min_index = dom.argmin()
+        min_index = dom.argmin().item()
         if dom[min_index] == 100000:
-            return torch.tensor(-1)
-        # print(dom.argmin())
+            return -1
         return min_index
 
     def dfs(self, level, vars_pre):
@@ -53,16 +48,12 @@ class BackTrackSearcher:
             return False
 
         var_index = self.var_heuristics(vars_pre)
-
-        # print(var_index)
-
-        if var_index == torch.tensor(-1):
+        if var_index == -1:
             self.answer = vars_pre
             return True
 
-        var = vars_pre[var_index][0]
+        var = vars_pre[var_index]
         for i in range(self.D):
-            i = torch.tensor(i)
             if var[i] == 0:
                 continue
             vars_re = self.assignment(var_index, i, vars_pre)
@@ -75,6 +66,7 @@ class BackTrackSearcher:
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
 N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-16_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
+# print(N.type(), " ", D.type(), " ", cons_map.type(), " ", vars_map.type())
 
 # vars_map = vars_map.to(device)
 # cons_map = cons_map.to(device)

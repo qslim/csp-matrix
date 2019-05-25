@@ -25,6 +25,7 @@ class ACEnforcer:
 
     def ac_enforcer(self, vars_map):
         # print(vars_map.type())
+        vars_map = vars_map.unsqueeze(1)
         vars_map_pre = self.n1d_mask0
         while torch.equal(vars_map, vars_map_pre) is False:
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -44,4 +45,4 @@ class ACEnforcer:
             if (torch.matmul(vars_map.squeeze(), self.d1_mask1) == self.n1_mask0).any():
                 return None
 
-        return vars_map
+        return vars_map.squeeze()

@@ -29,7 +29,7 @@ def parser(path):
     # mask = np.ones([15, 2])
     # vars_map = np.matmul(vars_map, mask)
     # vars_map = np.where(vars_map < 444, -1, vars_map)
-    vars_map = torch.tensor(vars_map).unsqueeze(1)
+    vars_map = torch.tensor(vars_map)
     # print(vars_map)
 
     # print(vars_map.shape)
