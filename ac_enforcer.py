@@ -1,35 +1,47 @@
-import numpy as np
+# import numpy as np
+import torch
 
 
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
+        # device = torch.device("cuda")
         self.N = N
         self.cons_map = cons_map
-        self.var_mask = np.ones([N, 1, N])
-        self.dom_mask = np.ones([D, 1])
-        self.dummy = np.zeros([N, 1])
-        self.count = 0
+
+        self.n1n_mask1 = torch.ones((N, 1, N))
+        self.d1_mask1 = torch.ones((D, 1))
+        self.n1_mask0 = torch.zeros((N, 1))
+        self.nnd_mask1 = torch.ones((N, N, D))
+        self.n1d_mask1 = torch.ones((N, 1, D))
+        self.n1d_mask0 = torch.zeros((N, 1, D))
+
+        # self.n1n_mask1 = torch.ones((N, 1, N)).to(device)
+        # self.d1_mask1 = torch.ones((D, 1)).to(device)
+        # self.n1_mask0 = torch.zeros((N, 1)).to(device)
+        # self.nnd_mask1 = torch.ones((N, N, D)).to(device)
+        # self.n1d_mask1 = torch.ones((N, 1, D)).to(device)
+        # self.n1d_mask0 = torch.zeros((N, 1, D)).to(device)
+        # self.count = 0
 
     def ac_enforcer(self, vars_map):
-        vars_map_pre = None
-        while (vars_map_pre != vars_map).any():
+        # print(vars_map.type())
+        vars_map_pre = self.n1d_mask0
+        while torch.equal(vars_map, vars_map_pre) is False:
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
 
-            self.count += 1
+            # self.count += 1
 
             vars_map_pre = vars_map
 
-            NN1D = np.matmul(vars_map, self.cons_map)
+            nnd = torch.matmul(vars_map, self.cons_map).squeeze()
 
-            NND = np.minimum(NN1D, 1).squeeze()
+            nnd_reduce = torch.where(nnd > 1, self.nnd_mask1, nnd)
 
-            # NDN = NND.transpose((0, 2, 1))
+            n1d = torch.matmul(self.n1n_mask1, nnd_reduce)
 
-            N1D = np.matmul(self.var_mask, NND)
+            vars_map = torch.where(n1d == self.N, self.n1d_mask1, self.n1d_mask0)
 
-            vars_map = np.where(N1D == self.N, 1, 0)
-
-            if (np.matmul(vars_map.squeeze(), self.dom_mask) == self.dummy).any():
+            if (torch.matmul(vars_map.squeeze(), self.d1_mask1) == self.n1_mask0).any():
                 return None
 
         return vars_map

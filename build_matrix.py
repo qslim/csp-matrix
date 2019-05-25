@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import numpy as np
+import torch
 
 
 def parser(path):
@@ -29,9 +29,8 @@ def parser(path):
     # mask = np.ones([15, 2])
     # vars_map = np.matmul(vars_map, mask)
     # vars_map = np.where(vars_map < 444, -1, vars_map)
-    vars_map = np.array(vars_map)
+    vars_map = torch.tensor(vars_map).unsqueeze(1)
     # print(vars_map)
-    vars_map = np.expand_dims(vars_map, 2)
 
     # print(vars_map.shape)
 
@@ -97,23 +96,23 @@ def parser(path):
         cube = []
         for j in range(num_vars):
             if i == j:
-                cube.append(np.identity(max_dom).tolist())
+                cube.append(torch.eye(max_dom).tolist())
             elif cons_to_rel[i][j] == -1:
                 cube.append([[1 for _ in range(max_dom)] for _ in range(max_dom)])
             else:
-                cube.append(rels_map[cons_to_rel[i][j]])
+                cube.append(rels_map[cons_to_rel[j][i]])
                 # cube.append(copy.deepcopy(rels_map[cons_to_rel[i][i]]))
 
         cons_map.append(cube)
 
-    cons_map = np.array(cons_map)
+    cons_map = torch.tensor(cons_map)
 
     # print(cons_map.shape)
     # print(cons_map[0][3])
     # print(cons_map[3][0])
 
     # return num_vars, max_dom, vars_map, cons_map
-    return num_vars, max_dom, vars_map.transpose((0, 2, 1)), cons_map.transpose((0, 1, 3, 2))
+    return num_vars, max_dom, vars_map.type(torch.float), cons_map.type(torch.float)
 
 
 # parser("/home/ymq/Downloads/rand-2-30-15/rand-2-30-15-306-230-10_ext.xml")

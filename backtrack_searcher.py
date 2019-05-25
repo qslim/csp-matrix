@@ -1,8 +1,10 @@
-import copy
-import numpy as np
+import torch
 from ac_enforcer import ACEnforcer
 from build_matrix import parser
 import time
+
+
+# device = torch.device("cuda")
 
 
 class BackTrackSearcher:
@@ -10,25 +12,33 @@ class BackTrackSearcher:
         self.acer = ACEnforcer(rel_, N, D)
         self.D = D
         self.N = N
-        self.var_mask = np.ones([D, 1])
-        self.count = 0
+        self.d1_mask1 = torch.ones((D, 1))
+        self.assign_mask = torch.eye(N)
+        self.n_mask10000 = (torch.ones(N) * 10000)
+        # self.d1_mask1 = torch.ones((D, 1)).to(device)
+        # self.assign_mask = torch.eye(N).to(device)
+        # self.n_mask10000 = (torch.ones(N) * 10000).to(device)
+        # self.count = 0
         self.answer = None
 
     def assignment(self, var_index, val_index, vars_pre):
-        self.count += 1
-        vars_re = copy.deepcopy(vars_pre)
-        var = vars_re[var_index][0]
-        for p in range(self.D):
-            var[p] = 0
-        var[val_index] = 1
+        # print(var_index, " ", val_index)
+        # self.count += 1
+        self.assign_mask[var_index][var_index] = 0
+        # print(self.assign_mask)
+        vars_re = torch.matmul(self.assign_mask, vars_pre.squeeze())
+        self.assign_mask[var_index][var_index] = 1
+        vars_re[var_index][val_index] = 1
+        # print(vars_re)
+        vars_re = vars_re.unsqueeze(1)
         return vars_re
 
     def var_heuristics(self, vars_):
-        dom = np.matmul(np.squeeze(vars_), self.var_mask).squeeze()
-        dom = np.where(dom <= 1, 100000, dom)
+        dom = torch.matmul(vars_, self.d1_mask1).squeeze()
+        dom = torch.where(dom == 1, self.n_mask10000, dom)
         min_index = dom.argmin()
         if dom[min_index] == 100000:
-            return -1
+            return torch.tensor(-1)
         # print(dom.argmin())
         return min_index
 
@@ -44,12 +54,15 @@ class BackTrackSearcher:
 
         var_index = self.var_heuristics(vars_pre)
 
-        if var_index == -1:
+        # print(var_index)
+
+        if var_index == torch.tensor(-1):
             self.answer = vars_pre
             return True
 
         var = vars_pre[var_index][0]
         for i in range(self.D):
+            i = torch.tensor(i)
             if var[i] == 0:
                 continue
             vars_re = self.assignment(var_index, i, vars_pre)
@@ -60,9 +73,11 @@ class BackTrackSearcher:
 
 
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-26/rand-26-26-325-155-53021_ext.xml")
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/run_dir/rand-2-23/rand-23-23-253-131-55021_ext.xml")
+N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-16_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 
+# vars_map = vars_map.to(device)
+# cons_map = cons_map.to(device)
 
 bs = BackTrackSearcher(cons_map, N, D)
 
@@ -76,5 +91,5 @@ else:
 
 print("Lasts =", time.time() - ticks)
 
-print("Node =", bs.count)
-print("Iterations =", bs.acer.count)
+# print("Node =", bs.count)
+# print("Iterations =", bs.acer.count)
