@@ -7,7 +7,6 @@ class ACEnforcer:
         device = torch.device("cuda")
         self.N = N
         self.cons_map = cons_map
-        self.n1n_mask1 = torch.ones((N, 1, N)).to(device)
         self.n1_mask0 = torch.zeros((N, 1)).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
         self.n1d_mask1 = torch.ones((N, 1, D)).to(device)
@@ -27,7 +26,7 @@ class ACEnforcer:
 
             nnd_reduce = torch.where(nnd > 1, self.nnd_mask1, nnd)
 
-            n1d = torch.matmul(self.n1n_mask1, nnd_reduce)
+            n1d = nnd_reduce.sum(1, keepdim=True)
 
             vars_map = torch.where(n1d == self.N, self.n1d_mask1, self.n1d_mask0)
 
