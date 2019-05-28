@@ -1,5 +1,5 @@
 import torch
-from sac_enforcer import SACEnforcer
+from sac1_enforcer import SAC1Enforcer
 from build_matrix import parser
 import time
 
@@ -9,7 +9,7 @@ device = torch.device("cuda")
 
 class BackTrackSearcher:
     def __init__(self, rel_, N, D):
-        self.acer = SACEnforcer(rel_, N, D)
+        self.acer = SAC1Enforcer(rel_, N, D)
         self.D = D
         self.N = N
         self.assign_mask = torch.eye(N).to(device)
