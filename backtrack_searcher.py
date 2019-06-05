@@ -1,5 +1,5 @@
 import torch
-from sac1_enforcer import SAC1Enforcer
+from ac_enforcer import ACEnforcer
 from build_matrix import parser
 import time
 
@@ -9,7 +9,7 @@ device = torch.device("cuda")
 
 class BackTrackSearcher:
     def __init__(self, rel_, N, D):
-        self.acer = SAC1Enforcer(rel_, N, D)
+        self.acer = ACEnforcer(rel_, N, D)
         self.D = D
         self.N = N
         self.assign_mask = torch.eye(N).to(device)
@@ -61,10 +61,10 @@ class BackTrackSearcher:
 
 
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-26/rand-26-26-325-155-58021_ext.xml")
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-23/rand-23-23-253-131-55021_ext.xml")
-# N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-22_ext.xml")
+# N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-23/rand-23-23-253-131-55021_ext.xml")
+N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-22_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
-# print(N.type(), " ", D.type(), " ", cons_map.type(), " ", vars_map.type())
+print(cons_map.type(), " ", vars_map.type())
 
 vars_map = vars_map.to(device)
 cons_map = cons_map.to(device)
