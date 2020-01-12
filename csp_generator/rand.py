@@ -34,7 +34,6 @@ def rand_generator():
     # print(np.array(rels_map[0]))
 
     # build cons_map
-    mid_val = (num_vars * (num_vars - 1)) // 2
     cons_map = []
     for i in range(num_vars):
         cube = []
@@ -42,9 +41,9 @@ def rand_generator():
             if i == j:
                 cube.append(torch.eye(max_dom).tolist())
             elif j < i:
-                cube.append(rels_map[num_vars * i + j])
+                cube.append(rels_map.pop())
             else:
-                cube.append(rels_map_r[num_vars * j + i])
+                cube.append(rels_map_r.pop())
         cons_map.append(cube)
     cons_map = torch.tensor(cons_map)
     # print(cons_map.shape)
