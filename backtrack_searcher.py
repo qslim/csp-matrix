@@ -1,6 +1,6 @@
 import torch
 from ac_enforcer import ACEnforcer
-from build_matrix import parser
+from csp_generator.rand import rand_generator
 import time
 
 
@@ -62,7 +62,7 @@ class BackTrackSearcher:
 
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-26/rand-26-26-325-155-58021_ext.xml")
 # N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-23/rand-23-23-253-131-55021_ext.xml")
-N, D, vars_map, cons_map = parser("/home/ymq/csp_benchmark/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-22_ext.xml")
+N, D, vars_map, cons_map = rand_generator()
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 print(cons_map.type(), " ", vars_map.type())
 
