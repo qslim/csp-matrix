@@ -36,6 +36,7 @@ class BackTrackSearcher:
     def dfs(self, level, vars_pre):
         # print(level)
         self.count += 1
+        print(self.count)
         if level == self.N:
             self.answer = vars_pre
             return True
