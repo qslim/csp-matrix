@@ -20,14 +20,14 @@ def rand_generator():
     rels_map = []
     rels_map_r = []
     for r1 in range(num_vars):
+        rel_map = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
+        rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
+        for i1 in range(max_dom):
+            for i2 in range(max_dom):
+                val = 1 - ((random.randint(0, 9) % 3) % 2)
+                rel_map[i1][i2] = val
+                rel_map_r[i2][i1] = val
         for r2 in range(r1):
-            rel_map = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
-            rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
-            for i1 in range(max_dom):
-                for i2 in range(max_dom):
-                    val = 1 - ((random.randint(0, 9) % 3) % 2)
-                    rel_map[i1][i2] = val
-                    rel_map_r[i2][i1] = val
             rels_map.append(rel_map)
             rels_map_r.append(rel_map_r)
     # print(np.array(rels_map).shape)
