@@ -37,7 +37,7 @@ class BackTrackSearcher:
     def dfs(self, level, vars_pre):
         # print(level)
         self.count += 1
-        print(self.count)
+        print(level, self.count)
         if level == self.N:
             self.answer = vars_pre
             return True
@@ -62,8 +62,8 @@ class BackTrackSearcher:
         return False
 
 
-#N, D, vars_map, cons_map = rand_generator()
-N, D, vars_map, cons_map = parser("./tightness0.65/rand-2-40-40-135-650-71_ext.xml")
+N, D, vars_map, cons_map = rand_generator()
+#N, D, vars_map, cons_map = parser("./tightness0.65/rand-2-40-40-135-650-71_ext.xml")
 print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
 print(cons_map.type(), " ", vars_map.type())
 

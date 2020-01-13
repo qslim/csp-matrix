@@ -4,8 +4,8 @@ import random
 
 def rand_generator():
     # build vars_map
-    max_dom = 50
-    num_vars = 50
+    max_dom = 100
+    num_vars = 200
     vars_map = []
     for _ in range(num_vars):
         line = []
@@ -24,7 +24,7 @@ def rand_generator():
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         for i1 in range(max_dom):
             for i2 in range(max_dom):
-                val = 1 - ((random.randint(0, 9) % 3) % 2)
+                val = 1 - (random.randint(0, 9) % 5) % 2
                 rel_map[i1][i2] = val
                 rel_map_r[i2][i1] = val
         for r2 in range(r1):
