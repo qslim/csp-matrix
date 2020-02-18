@@ -1,20 +1,16 @@
 import torch
 import random
+from sparse_dom import SparseDom
 
 
 def rand_generator():
     # build vars_map
-    max_dom = 100
-    num_vars = 200
+    max_dom = 20
+    num_vars = 20
     vars_map = []
     for _ in range(num_vars):
-        line = []
-        for _ in range(max_dom):
-            line.append(1)
+        line = SparseDom(max_dom)
         vars_map.append(line)
-    vars_map = torch.tensor(vars_map)
-    # print(vars_map)
-    # print(vars_map.shape)
 
     # build rels_map
     rels_map = []
@@ -24,7 +20,9 @@ def rand_generator():
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         for i1 in range(max_dom):
             for i2 in range(max_dom):
-                val = 1 - (random.randint(0, 9) % 5) % 2
+                val = random.randint(0, 7)
+                if val > 0:
+                    val = 1
                 rel_map[i1][i2] = val
                 rel_map_r[i2][i1] = val
         for r2 in range(r1):
@@ -45,13 +43,8 @@ def rand_generator():
             else:
                 cube.append(rels_map_r.pop())
         cons_map.append(cube)
-    cons_map = torch.tensor(cons_map)
-    # print(cons_map.shape)
-    # print(cons_map[0][3])
-    # print(cons_map[3][0])
 
-    # return num_vars, max_dom, vars_map, cons_map
-    return num_vars, max_dom, vars_map.type(torch.float), cons_map.type(torch.float)
+    return num_vars, max_dom, vars_map, cons_map
 
 
 # parser("/home/ymq/Downloads/rand-2-30-15/rand-2-30-15-306-230-10_ext.xml")

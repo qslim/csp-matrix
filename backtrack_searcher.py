@@ -1,40 +1,40 @@
 import torch
 from ac_enforcer import ACEnforcer
 from csp_generator.rand import rand_generator
-from build_matrix import parser
 import time
 
 
-device = torch.device("cuda")
-
-
 class BackTrackSearcher:
-    def __init__(self, rel_, N, D):
-        self.acer = ACEnforcer(rel_, N, D)
-        self.D = D
+    def __init__(self, rel_, N):
+        self.acer = ACEnforcer(rel_, N)
         self.N = N
-        self.assign_mask = torch.eye(N).to(device)
-        self.n_mask10000 = (torch.ones(N) * 10000).to(device)
         self.count = 0
         self.answer = None
+        self.backup_vars = []
+        for i in range(self.N):
+            vars_l = [N - 1 for _ in range(N)]
+            self.backup_vars.append(vars_l)
 
-    def assignment(self, var_index, val_index, vars_pre):
-        # self.count += 1
-        self.assign_mask[var_index][var_index] = 0
-        vars_re = torch.matmul(self.assign_mask, vars_pre)
-        self.assign_mask[var_index][var_index] = 1
-        vars_re[var_index][val_index] = 1
-        return vars_re
+    def backup(self, vars_map_cur, level):
+        for i in range(self.N):
+            self.backup_vars[level][i] = vars_map_cur[i].pointer
+
+    def restore(self, vars_map_cur, level):
+        for i in range(self.N):
+            vars_map_cur[i].pointer = self.backup_vars[level][i]
+        return vars_map_cur
 
     def var_heuristics(self, vars_):
-        dom = vars_.sum(1)
-        dom = torch.where(dom == 1, self.n_mask10000, dom)
-        min_index = dom.argmin().item()
-        if dom[min_index] == 100000:
-            return -1
+        min_dom = 99999
+        min_index = -1
+        for i in range(1, self.N):
+            if vars_[i].pointer > 0:
+                if min_dom > vars_[i].pointer:
+                    min_index = i
+                    min_dom = vars_[i].pointer
         return min_index
 
-    def dfs(self, level, vars_pre):
+    def dfs(self, level, vars_pre, var_index):
         # print(level)
         self.count += 1
         print(level, self.count)
@@ -42,7 +42,7 @@ class BackTrackSearcher:
             self.answer = vars_pre
             return True
 
-        vars_pre = self.acer.ac_enforcer(vars_pre)
+        vars_pre = self.acer.ac_enforcer(vars_pre, var_index)
         if vars_pre is None:
             return False
 
@@ -51,30 +51,27 @@ class BackTrackSearcher:
             self.answer = vars_pre
             return True
 
-        var = vars_pre[var_index]
-        for i in range(self.D):
-            if var[i] == 0:
-                continue
-            vars_re = self.assignment(var_index, i, vars_pre)
-            if self.dfs(level + 1, vars_re):
+        self.backup(vars_pre, level)
+        for i in range(vars_pre[var_index].pointer + 1):
+            val_index = vars_pre[var_index].get(i)
+            vars_pre[var_index].assign(val_index)
+            if self.dfs(level + 1, vars_pre, var_index):
                 return True
-
+            vars_pre = self.restore(vars_pre, level)
         return False
 
 
 N, D, vars_map, cons_map = rand_generator()
 #N, D, vars_map, cons_map = parser("./tightness0.65/rand-2-40-40-135-650-71_ext.xml")
-print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
-print(cons_map.type(), " ", vars_map.type())
+# print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
+# print(cons_map.type(), " ", vars_map.type())
 
-vars_map = vars_map.to(device)
-cons_map = cons_map.to(device)
 
-bs = BackTrackSearcher(cons_map, N, D)
+bs = BackTrackSearcher(cons_map, N)
 
 ticks = time.time()
 
-if bs.dfs(0, vars_map):
+if bs.dfs(0, vars_map, None):
     print("got answer...")
     # print(bs.answer.squeeze())
 else:
