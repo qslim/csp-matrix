@@ -2,7 +2,7 @@ import torch
 import random
 
 
-def rand_generator(max_dom, num_vars):
+def constraints_generator(max_dom, num_vars):
     # build rels_map
     rels_map = []
     rels_map_r = []

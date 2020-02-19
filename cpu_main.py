@@ -1,4 +1,4 @@
-from csp_generator.rand import rand_generator
+from constraints_generator import constraints_generator
 from sparse_dom import SparseDom
 import time
 
@@ -182,7 +182,7 @@ class BackTrackSearcher:
 
 max_dom = 40
 num_vars = 20
-cons_map_ = rand_generator(max_dom, num_vars)
+cons_map_ = constraints_generator(max_dom, num_vars)
 # build vars_map
 vars_map_cpu = []
 for _ in range(num_vars):

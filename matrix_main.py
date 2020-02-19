@@ -1,6 +1,6 @@
 import torch
 from ac_enforcer import ACEnforcer
-from csp_generator.rand import rand_generator
+from constraints_generator import constraints_generator
 import time
 
 
@@ -63,7 +63,7 @@ class BackTrackSearcher:
 
 max_dom = 200
 num_vars = 250
-cons_map = rand_generator(max_dom, num_vars)
+cons_map = constraints_generator(max_dom, num_vars)
 cons_map = torch.tensor(cons_map).type(torch.float)
 
 # build vars_map
