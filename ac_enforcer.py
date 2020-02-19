@@ -1,12 +1,10 @@
-# import numpy as np
-import torch
-import queue
+from priority_queue import PriorityQueue
 
 
 class ACEnforcer:
     def __init__(self, cons_map, N):
         self.cons_map = cons_map
-        self.queue = queue.Queue()
+        self.pQueue = PriorityQueue(N)
         self.N = N
 
     def revise(self, x, y, vars_map):
@@ -22,9 +20,8 @@ class ACEnforcer:
                     break
             if not find_sup:
                 vars_map[x].delete(i)
-        # return vars_map
         if vars_map[x].pointer != x_pre:
-            self.queue.put(x)
+            self.pQueue.push(vars_map[x].pointer, x)
             if vars_map[x].pointer < 0:
                 return True
         return False
@@ -32,31 +29,18 @@ class ACEnforcer:
     def ac_enforcer(self, vars_map, var_id=None):
         if var_id is None:
             for i in range(self.N):
-                self.queue.put(i)
+                self.pQueue.push(vars_map[i].pointer, i)
         else:
-            self.queue.put(var_id)
+            self.pQueue.push(vars_map[var_id].pointer, var_id)
 
         # print(self.queue.qsize())
 
-        while not self.queue.empty():
-            var = self.queue.get()
+        while not self.pQueue.empty():
+            var = self.pQueue.pop()
             for i in range(0, self.N):
-                # if var != i:
-                #     vd_pre = vars_map[var].pointer
-                #     vars_map = self.revise(var, i, vars_map)
-                #     if vd_pre != vars_map[var].pointer:
-                #         self.queue.put(var)
-                #         if vars_map[var].pointer < 0:
-                #             return None
-                #     vd_pre = vars_map[i].pointer
-                #     vars_map = self.revise(i, var, vars_map)
-                #     if vd_pre != vars_map[i].pointer:
-                #         self.queue.put(i)
-                #         if vars_map[i].pointer < 0:
-                #             return None
-                if var != i and (self.revise(var, i, vars_map) or self.revise(i, var, vars_map)):
-                    while not self.queue.empty():
-                        self.queue.get()
+                if var != i and (self.revise(var, i, vars_map) or
+                                 self.revise(i, var, vars_map)):
+                    self.pQueue.clear()
                     return None
         return vars_map
 
