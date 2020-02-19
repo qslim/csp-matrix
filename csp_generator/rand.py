@@ -1,17 +1,8 @@
 import torch
 import random
-from sparse_dom import SparseDom
 
 
-def rand_generator():
-    # build vars_map
-    max_dom = 20
-    num_vars = 20
-    vars_map = []
-    for _ in range(num_vars):
-        line = SparseDom(max_dom)
-        vars_map.append(line)
-
+def rand_generator(max_dom, num_vars):
     # build rels_map
     rels_map = []
     rels_map_r = []
@@ -20,7 +11,7 @@ def rand_generator():
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         for i1 in range(max_dom):
             for i2 in range(max_dom):
-                val = random.randint(0, 7)
+                val = random.randint(0, 4)
                 if val > 0:
                     val = 1
                 rel_map[i1][i2] = val
@@ -44,9 +35,6 @@ def rand_generator():
                 cube.append(rels_map_r.pop())
         cons_map.append(cube)
 
-    return num_vars, max_dom, vars_map, cons_map
+    return cons_map
 
-
-# parser("/home/ymq/Downloads/rand-2-30-15/rand-2-30-15-306-230-10_ext.xml")
-# parser("/home/ymq/csp_benchmark/run_dir/rand-2-30-15-fcd/rand-2-30-15-306-230-fcd-17_ext.xml")
 
