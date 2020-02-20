@@ -1,6 +1,7 @@
 from constraints_generator import constraints_generator
 from sparse_dom import SparseDom
 import time
+import pickle
 
 
 class BackTrackSearcher:
@@ -169,9 +170,21 @@ class BackTrackSearcher:
         return False
 
 
-max_dom = 100
+max_dom = 50
 num_vars = 100
 cons_map_ = constraints_generator(max_dom, num_vars)
+
+f = open('constraints.dump', 'wb')
+pickle.dump(cons_map_, f)
+f.close()
+
+
+f = open('constraints.dump', 'rb')
+cons_map_ = pickle.load(f)
+max_dom = len(cons_map_[0][0])
+num_vars = len(cons_map_)
+f.close()
+
 # build vars_map
 vars_map_cpu = []
 for _ in range(num_vars):

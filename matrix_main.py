@@ -2,6 +2,7 @@ import torch
 from ac_enforcer import ACEnforcer
 from constraints_generator import constraints_generator
 import time
+import pickle
 
 
 device = torch.device("cuda")
@@ -61,9 +62,19 @@ class BackTrackSearcher:
         return False
 
 
-max_dom = 200
-num_vars = 250
-cons_map = constraints_generator(max_dom, num_vars)
+# max_dom = 50
+# num_vars = 100
+# cons_map = constraints_generator(max_dom, num_vars)
+# f = open('constraints.dump', 'wb')
+# pickle.dump(cons_map, f)
+# f.close()
+
+f = open('constraints.dump', 'rb')
+cons_map = pickle.load(f)
+max_dom = len(cons_map[0][0])
+num_vars = len(cons_map)
+f.close()
+
 cons_map = torch.tensor(cons_map).type(torch.float)
 
 # build vars_map
