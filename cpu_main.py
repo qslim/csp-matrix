@@ -10,10 +10,6 @@ class BackTrackSearcher:
         self.N = N
         self.count = 0
         self.answer = None
-        self.backup_vars = []
-        for i in range(self.N):
-            vars_l = [N - 1 for _ in range(N)]
-            self.backup_vars.append(vars_l)
 
         self.heapSize = 0
         self.heapList = [-1 for _ in range(N)]
@@ -96,14 +92,6 @@ class BackTrackSearcher:
             self.heapMap[x] = -1
         self.heapSize = 0
 
-    def backup(self, level):
-        for i in range(self.N):
-            self.backup_vars[level][i] = self.vars_map[i].pointer
-
-    def restore(self, level):
-        for i in range(self.N):
-            self.vars_map[i].pointer = self.backup_vars[level][i]
-
     def var_heuristics(self):
         min_dom = 99999
         min_index = -1
@@ -170,18 +158,19 @@ class BackTrackSearcher:
             self.answer = self.vars_map
             return True
 
-        self.backup(level)
+        backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
         for i in range(self.vars_map[var_index].pointer + 1):
+            for j in range(self.N):
+                self.vars_map[j].pointer = backup_vars[j]
             val_index = self.vars_map[var_index].get(i)
             self.vars_map[var_index].assign(val_index)
             if self.dfs(level + 1, var_index):
                 return True
-            self.restore(level)
         return False
 
 
-max_dom = 40
-num_vars = 20
+max_dom = 100
+num_vars = 100
 cons_map_ = constraints_generator(max_dom, num_vars)
 # build vars_map
 vars_map_cpu = []
