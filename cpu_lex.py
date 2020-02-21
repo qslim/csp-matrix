@@ -127,12 +127,12 @@ class BackTrackSearcher:
                 self.vars_map[x].dom[i] = 0
                 self.vars_map[x].pointer -= 1
         if self.vars_map[x].pointer != x_pre:
+            if self.vars_map[x].pointer < 0:
+                return True
             if self.heapMap[x] == -1:
                 self.push(x)
             else:
                 self.heap_up(x)
-            if self.vars_map[x].pointer < 0:
-                return True
         return False
 
     def ac_enforcer(self, var_id=None):
@@ -199,7 +199,7 @@ class BackTrackSearcher:
 
 
 num_vars, max_dom, vars_map_cpu, cons_map_ = \
-    parser("./tightness0.65/rand-2-40-40-135-650-71_ext.xml")
+    parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
 # max_dom = 50
@@ -217,11 +217,11 @@ num_vars, max_dom, vars_map_cpu, cons_map_ = \
 # num_vars = len(cons_map_)
 # f.close()
 #
-# # build vars_map
-# vars_map_cpu = []
-# for _ in range(num_vars):
-#     line_cpu = SparseDom(max_dom)
-#     vars_map_cpu.append(line_cpu)
+# build vars_map
+vars_map_cpu = []
+for _ in range(num_vars):
+    line_cpu = SparseDom(max_dom)
+    vars_map_cpu.append(line_cpu)
 
 # print(cons_map.type(), " ", vars_map.type())
 

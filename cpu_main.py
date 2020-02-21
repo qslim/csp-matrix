@@ -3,6 +3,8 @@ from sparse_dom import SparseDom
 import time
 import pickle
 
+from build_matrix import parser
+
 
 class BackTrackSearcher:
     def __init__(self, rel_, vars_, N):
@@ -117,12 +119,12 @@ class BackTrackSearcher:
             if not find_sup:
                 self.vars_map[x].delete(i)
         if self.vars_map[x].pointer != x_pre:
+            if self.vars_map[x].pointer < 0:
+                return True
             if self.heapMap[x] == -1:
                 self.push(x)
             else:
                 self.heap_up(x)
-            if self.vars_map[x].pointer < 0:
-                return True
         return False
 
     def ac_enforcer(self, var_id=None):
@@ -170,20 +172,24 @@ class BackTrackSearcher:
         return False
 
 
-max_dom = 15
-num_vars = 20
-cons_map_ = constraints_generator(max_dom, num_vars)
-
-f = open('constraints.dump', 'wb')
-pickle.dump(cons_map_, f)
-f.close()
+num_vars, max_dom, vars_map_cpu, cons_map_ = \
+    parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
-f = open('constraints.dump', 'rb')
-cons_map_ = pickle.load(f)
-max_dom = len(cons_map_[0][0])
-num_vars = len(cons_map_)
-f.close()
+# max_dom = 15
+# num_vars = 20
+# cons_map_ = constraints_generator(max_dom, num_vars)
+#
+# f = open('constraints.dump', 'wb')
+# pickle.dump(cons_map_, f)
+# f.close()
+#
+#
+# f = open('constraints.dump', 'rb')
+# cons_map_ = pickle.load(f)
+# max_dom = len(cons_map_[0][0])
+# num_vars = len(cons_map_)
+# f.close()
 
 # build vars_map
 vars_map_cpu = []
