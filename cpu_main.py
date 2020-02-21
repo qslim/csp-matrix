@@ -170,7 +170,7 @@ class BackTrackSearcher:
         return False
 
 
-max_dom = 20
+max_dom = 15
 num_vars = 20
 cons_map_ = constraints_generator(max_dom, num_vars)
 
