@@ -3,8 +3,8 @@ class SparseDom:
         self.pointer = N - 1
         self.dom = [i for i in range(N)]
 
-    def get(self, index):
-        return self.dom[index]
+    # def get(self, index):
+    #     return self.dom[index]
 
     def delete(self, index):
         tmp = self.dom[index]

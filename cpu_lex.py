@@ -202,8 +202,8 @@ class BackTrackSearcher:
 #     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
-max_dom = 3
-num_vars = 3
+max_dom = 10
+num_vars = 12
 # cons_map_ = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
 #               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
 #               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],

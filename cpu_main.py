@@ -109,10 +109,10 @@ class BackTrackSearcher:
         con_map = self.cons_map[x][y]
         x_pre = self.vars_map[x].pointer
         for i in range(self.vars_map[x].pointer + 1):
-            val_x = self.vars_map[x].get(i)
+            val_x = self.vars_map[x].dom[i]
             find_sup = False
             for j in range(self.vars_map[y].pointer + 1):
-                val_y = self.vars_map[y].get(j)
+                val_y = self.vars_map[y].dom[j]
                 if con_map[val_x][val_y] == 1:
                     find_sup = True
                     break
@@ -162,9 +162,13 @@ class BackTrackSearcher:
             return True
 
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
-        for i in range(self.vars_map[var_index].pointer + 1):
-            val_index = self.vars_map[var_index].get(i)
-            self.vars_map[var_index].assign(val_index)
+        sorted_dom = [self.vars_map[var_index].dom[i] for i in range(self.vars_map[var_index].pointer + 1)]
+        sorted_dom.sort()
+        for i in sorted_dom:
+            self.vars_map[var_index].assign(i)
+        # for i in range(self.vars_map[var_index].pointer + 1):
+        #     val_index = self.vars_map[var_index].dom[i]
+        #     self.vars_map[var_index].assign(val_index)
             if self.dfs(level + 1, var_index):
                 return True
             for j in range(self.N):
@@ -172,8 +176,8 @@ class BackTrackSearcher:
         return False
 
 
-num_vars, max_dom, vars_map_cpu, cons_map_ = \
-    parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
+# num_vars, max_dom, vars_map_cpu, cons_map_ = \
+#     parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
 
 
 # max_dom = 15
@@ -185,11 +189,11 @@ num_vars, max_dom, vars_map_cpu, cons_map_ = \
 # f.close()
 #
 #
-# f = open('constraints.dump', 'rb')
-# cons_map_ = pickle.load(f)
-# max_dom = len(cons_map_[0][0])
-# num_vars = len(cons_map_)
-# f.close()
+f = open('constraints.dump', 'rb')
+cons_map_ = pickle.load(f)
+max_dom = len(cons_map_[0][0])
+num_vars = len(cons_map_)
+f.close()
 
 # build vars_map
 vars_map_cpu = []
