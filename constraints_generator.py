@@ -6,8 +6,8 @@ def constraints_generator(max_dom, num_vars):
     # build rels_map
     rels_map = []
     rels_map_r = []
-    # num_cons = num_vars * (num_vars - 1) // 2
-    num_cons = 1
+    num_cons = num_vars * (num_vars - 1) // 2
+    # num_cons = 1
     for r1 in range(num_cons):
         rel_map = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
@@ -28,8 +28,8 @@ def constraints_generator(max_dom, num_vars):
             if i == j:
                 continue
             if i < j:
-                cons_mark[i][j] = cnt % 1
-                cons_mark[j][i] = cnt % 1
+                cons_mark[i][j] = cnt % num_cons
+                cons_mark[j][i] = cnt % num_cons
                 cnt += 1
 
     cons_map = []

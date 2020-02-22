@@ -103,7 +103,7 @@ class BackTrackSearcher:
     def var_heuristics(self):
         min_dom = 99999
         min_index = -1
-        for i in range(1, self.N):
+        for i in range(self.N):
             if self.vars_map[i].pointer > 0:
                 if min_dom > self.vars_map[i].pointer:
                     min_index = i
@@ -202,7 +202,7 @@ class BackTrackSearcher:
 #     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
-max_dom = 3
+max_dom = 4
 num_vars = 4
 cons_map_ = constraints_generator(max_dom, num_vars)
 

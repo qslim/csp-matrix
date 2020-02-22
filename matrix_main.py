@@ -98,7 +98,7 @@ ticks = time.time()
 
 if bs.dfs(0, vars_map):
     print("got answer...")
-    # print(bs.answer.squeeze())
+    print(bs.answer.squeeze())
 else:
     print("no answer...")
 print(bs.count)
