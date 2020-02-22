@@ -30,7 +30,7 @@ class BackTrackSearcher:
         dom = vars_.sum(1)
         dom = torch.where(dom == 1, self.n_mask10000, dom)
         min_index = dom.argmin().item()
-        if dom[min_index] == self.n_mask10000[0].item():
+        if dom[min_index].item() >= 10000:
             return -1
         return min_index
 
