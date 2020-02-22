@@ -198,25 +198,27 @@ class BackTrackSearcher:
         return False
 
 
-num_vars, max_dom, vars_map_cpu, cons_map_ = \
-    parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
+# num_vars, max_dom, vars_map_cpu, cons_map_ = \
+#     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
-# max_dom = 50
-# num_vars = 50
-# cons_map_ = constraints_generator(max_dom, num_vars)
-#
-# f = open('constraints.dump', 'wb')
-# pickle.dump(cons_map_, f)
-# f.close()
+max_dom = 3
+num_vars = 4
+cons_map_ = constraints_generator(max_dom, num_vars)
+
+print(cons_map_)
+
+f = open('constraints.dump', 'wb')
+pickle.dump(cons_map_, f)
+f.close()
 
 
-# f = open('constraints.dump', 'rb')
-# cons_map_ = pickle.load(f)
-# max_dom = len(cons_map_[0][0])
-# num_vars = len(cons_map_)
-# f.close()
-#
+f = open('constraints.dump', 'rb')
+cons_map_ = pickle.load(f)
+max_dom = len(cons_map_[0][0])
+num_vars = len(cons_map_)
+f.close()
+
 # build vars_map
 vars_map_cpu = []
 for _ in range(num_vars):
@@ -231,7 +233,8 @@ ticks = time.time()
 
 if bs.dfs(0, None):
     print("got answer...")
-    # print(bs.answer.squeeze())
+    for i in bs.answer:
+        print(i.dom)
 else:
     print("no answer...")
 print(bs.count)
