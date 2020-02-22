@@ -30,7 +30,7 @@ class BackTrackSearcher:
         dom = vars_.sum(1)
         dom = torch.where(dom == 1, self.n_mask10000, dom)
         min_index = dom.argmin().item()
-        if dom[min_index] == 100000:
+        if dom[min_index] == self.n_mask10000[0].item():
             return -1
         return min_index
 
@@ -74,6 +74,19 @@ cons_map = pickle.load(f)
 max_dom = len(cons_map[0][0])
 num_vars = len(cons_map)
 f.close()
+# print(cons_map)
+
+# max_dom = 3
+# num_vars = 3
+# cons_map = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+#               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
+#              [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 1, 0], [1, 1, 0]]],
+#              [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
+#               [[1, 0, 1], [1, 1, 1], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]
 
 cons_map = torch.tensor(cons_map).type(torch.float)
 

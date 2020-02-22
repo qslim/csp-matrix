@@ -202,16 +202,24 @@ class BackTrackSearcher:
 #     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
 
-max_dom = 4
-num_vars = 4
-cons_map_ = constraints_generator(max_dom, num_vars)
+max_dom = 3
+num_vars = 3
+# cons_map_ = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+#               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
+#              [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 1, 0], [1, 1, 0]]],
+#              [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
+#               [[1, 0, 1], [1, 1, 1], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]
 
-print(cons_map_)
+cons_map_ = constraints_generator(max_dom, num_vars)
+# print(cons_map_)
 
 f = open('constraints.dump', 'wb')
 pickle.dump(cons_map_, f)
 f.close()
-
 
 f = open('constraints.dump', 'rb')
 cons_map_ = pickle.load(f)
