@@ -98,7 +98,7 @@ class BackTrackSearcher:
     def var_heuristics(self):
         min_dom = 99999
         min_index = -1
-        for i in range(1, self.N):
+        for i in range(self.N):
             if self.vars_map[i].pointer > 0:
                 if min_dom > self.vars_map[i].pointer:
                     min_index = i
@@ -138,7 +138,7 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in range(0, self.N):
+            for i in range(self.N):
                 if var != i and (self.revise(var, i) or
                                  self.revise(i, var)):
                     self.heap_clear()

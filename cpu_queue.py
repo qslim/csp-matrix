@@ -19,15 +19,12 @@ class BackTrackSearcher:
         self.count = 0
         self.answer = None
 
-        # self.heapSize = 0
-        # self.heapList = [-1 for _ in range(N)]
-        # self.heapMap = [-1 for _ in range(N)]
         self.queue = queue.Queue()
 
     def var_heuristics(self):
         min_dom = 99999
         min_index = -1
-        for i in range(1, self.N):
+        for i in range(self.N):
             if self.vars_map[i].pointer > 0:
                 if min_dom > self.vars_map[i].pointer:
                     min_index = i
@@ -51,9 +48,9 @@ class BackTrackSearcher:
                 self.vars_map[x].dom[i] = 0
                 self.vars_map[x].pointer -= 1
         if self.vars_map[x].pointer != x_pre:
-            self.queue.put(x)
             if self.vars_map[x].pointer < 0:
                 return True
+            self.queue.put(x)
         return False
 
     def ac_enforcer(self, var_id=None):
@@ -65,9 +62,9 @@ class BackTrackSearcher:
 
         # print(self.queue.qsize())
 
-        while not self.queue.empty() > 0:
+        while not self.queue.empty():
             var = self.queue.get()
-            for i in range(0, self.N):
+            for i in range(self.N):
                 if var != i and (self.revise(var, i) or
                                  self.revise(i, var)):
                     while not self.queue.empty():
@@ -120,14 +117,28 @@ class BackTrackSearcher:
         return False
 
 
-# max_dom = 50
-# num_vars = 50
-# cons_map_ = constraints_generator(max_dom, num_vars)
-#
-# f = open('constraints.dump', 'wb')
-# pickle.dump(cons_map_, f)
-# f.close()
+# num_vars, max_dom, vars_map_cpu, cons_map_ = \
+#     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
 
+
+max_dom = 3
+num_vars = 3
+# cons_map_ = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+#               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
+#              [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#               [[1, 1, 1], [0, 1, 0], [1, 1, 0]]],
+#              [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
+#               [[1, 0, 1], [1, 1, 1], [1, 0, 0]],
+#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]
+
+cons_map_ = constraints_generator(max_dom, num_vars)
+# print(cons_map_)
+
+f = open('constraints.dump', 'wb')
+pickle.dump(cons_map_, f)
+f.close()
 
 f = open('constraints.dump', 'rb')
 cons_map_ = pickle.load(f)
@@ -149,7 +160,8 @@ ticks = time.time()
 
 if bs.dfs(0, None):
     print("got answer...")
-    # print(bs.answer.squeeze())
+    for i in bs.answer:
+        print(i.dom)
 else:
     print("no answer...")
 print(bs.count)

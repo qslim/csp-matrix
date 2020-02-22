@@ -146,7 +146,7 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in range(0, self.N):
+            for i in range(self.N):
                 if var != i and (self.revise(var, i) or
                                  self.revise(i, var)):
                     self.heap_clear()
