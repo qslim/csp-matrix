@@ -1,9 +1,26 @@
 from constraints_generator import constraints_generator
-from sparse_dom import SparseDom
 import time
 import pickle
 
 from build_matrix import parser
+
+
+class SparseDom:
+    def __init__(self, N):
+        self.pointer = N - 1
+        self.dom = [i for i in range(N)]
+
+    def delete(self, index):
+        tmp = self.dom[index]
+        self.dom[index] = self.dom[self.pointer]
+        self.dom[self.pointer] = tmp
+        self.pointer -= 1
+
+    def assign(self, index):
+        tmp = self.dom[0]
+        self.dom[0] = self.dom[index]
+        self.dom[index] = tmp
+        self.pointer = 0
 
 
 class BackTrackSearcher:
@@ -108,7 +125,7 @@ class BackTrackSearcher:
     def revise(self, x, y):
         con_map = self.cons_map[x][y]
         x_pre = self.vars_map[x].pointer
-        for i in range(self.vars_map[x].pointer + 1):
+        for i in range(self.vars_map[x].pointer, -1, -1):
             val_x = self.vars_map[x].dom[i]
             find_sup = False
             for j in range(self.vars_map[y].pointer + 1):
@@ -179,37 +196,33 @@ class BackTrackSearcher:
 # num_vars, max_dom, vars_map_cpu, cons_map_ = \
 #     parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
 
-
-# max_dom = 15
-# num_vars = 20
-# cons_map_ = constraints_generator(max_dom, num_vars)
-#
+# max_domain = 10
+# num_variables = 10
+# constraints_map = constraints_generator(max_domain, num_variables)
 # f = open('constraints.dump', 'wb')
-# pickle.dump(cons_map_, f)
+# pickle.dump(constraints_map, f)
 # f.close()
-#
-#
+
 f = open('constraints.dump', 'rb')
-cons_map_ = pickle.load(f)
-max_dom = len(cons_map_[0][0])
-num_vars = len(cons_map_)
+constraints_map = pickle.load(f)
+max_domain = len(constraints_map[0][0])
+num_variables = len(constraints_map)
 f.close()
 
 # build vars_map
-vars_map_cpu = []
-for _ in range(num_vars):
-    line_cpu = SparseDom(max_dom)
-    vars_map_cpu.append(line_cpu)
+variables_map = []
+for _ in range(num_variables):
+    line = SparseDom(max_domain)
+    variables_map.append(line)
 
-# print(cons_map.type(), " ", vars_map.type())
-
-bs = BackTrackSearcher(cons_map_,  vars_map_cpu, num_vars)
+bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
 
 ticks = time.time()
 
 if bs.dfs(0, None):
     print("got answer...")
-    # print(bs.answer.squeeze())
+    for ii in bs.answer:
+        print(ii.dom)
 else:
     print("no answer...")
 print(bs.count)

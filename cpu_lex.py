@@ -4,7 +4,7 @@ import pickle
 from build_matrix import parser
 
 
-class SparseDom:
+class MapDomain:
     def __init__(self, D):
         self.pointer = D - 1
         self.dom = [1 for _ in range(D)]
@@ -199,50 +199,35 @@ class BackTrackSearcher:
 
 
 # num_vars, max_dom, vars_map_cpu, cons_map_ = \
-#     parser("./tightness0.1/rand-2-40-8-753-100-66_ext.xml")
+#     parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
 
-
-max_dom = 10
-num_vars = 12
-# cons_map_ = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-#               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
-#               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
-#              [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
-#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-#               [[1, 1, 1], [0, 1, 0], [1, 1, 0]]],
-#              [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
-#               [[1, 0, 1], [1, 1, 1], [1, 0, 0]],
-#               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]
-
-cons_map_ = constraints_generator(max_dom, num_vars)
-# print(cons_map_)
-
+max_domain = 20
+num_variables = 20
+constraints_map = constraints_generator(max_domain, num_variables)
 f = open('constraints.dump', 'wb')
-pickle.dump(cons_map_, f)
+pickle.dump(constraints_map, f)
 f.close()
 
 f = open('constraints.dump', 'rb')
-cons_map_ = pickle.load(f)
-max_dom = len(cons_map_[0][0])
-num_vars = len(cons_map_)
+constraints_map = pickle.load(f)
+max_domain = len(constraints_map[0][0])
+num_variables = len(constraints_map)
 f.close()
 
 # build vars_map
-vars_map_cpu = []
-for _ in range(num_vars):
-    line_cpu = SparseDom(max_dom)
-    vars_map_cpu.append(line_cpu)
+variables_map = []
+for _ in range(num_variables):
+    line = MapDomain(max_domain)
+    variables_map.append(line)
 
-# print(cons_map.type(), " ", vars_map.type())
-
-bs = BackTrackSearcher(cons_map_,  vars_map_cpu, num_vars, max_dom)
+bs = BackTrackSearcher(constraints_map, variables_map, num_variables, max_domain)
 
 ticks = time.time()
 
 if bs.dfs(0, None):
     print("got answer...")
-    for i in bs.answer:
-        print(i.dom)
+    for ii in bs.answer:
+        print(ii.dom)
 else:
     print("no answer...")
 print(bs.count)

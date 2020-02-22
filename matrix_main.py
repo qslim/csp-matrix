@@ -1,11 +1,33 @@
 import torch
-from ac_enforcer import ACEnforcer
 from constraints_generator import constraints_generator
 import time
 import pickle
 
 
-device = torch.device("cuda")
+device = torch.device("cpu")
+
+
+class ACEnforcer:
+    def __init__(self, cons_map, N, D):
+        self.N = N
+        self.cons_map = cons_map
+        self.n1_mask0 = torch.zeros((N, 1)).to(device)
+        self.nnd_mask1 = torch.ones((N, N, D)).to(device)
+        self.nd_mask1 = torch.ones((N, D)).to(device)
+        self.nd_mask0 = torch.zeros((N, D)).to(device)
+
+    def ac_enforcer(self, vars_map):
+        vars_map_pre = self.nd_mask0
+        while not torch.equal(vars_map, vars_map_pre):
+            # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+            vars_map_pre = vars_map
+            nnd = torch.matmul(self.cons_map, vars_map.unsqueeze(2)).squeeze()
+            nnd_reduce = torch.where(nnd > 1, self.nnd_mask1, nnd)
+            nd = nnd_reduce.sum(1, keepdim=True).squeeze()
+            vars_map = torch.where(nd == self.N, self.nd_mask1, self.nd_mask0)
+            if (vars_map.sum(1) == self.n1_mask0).any():
+                return None
+        return vars_map
 
 
 class BackTrackSearcher:
@@ -62,54 +84,57 @@ class BackTrackSearcher:
         return False
 
 
-# max_dom = 50
-# num_vars = 100
-# cons_map = constraints_generator(max_dom, num_vars)
+# num_vars, max_dom, vars_map_cpu, cons_map_ = \
+#     parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
+
+# max_domain = 10
+# num_variables = 10
+# constraints_map = constraints_generator(max_domain, num_variables)
 # f = open('constraints.dump', 'wb')
-# pickle.dump(cons_map, f)
+# pickle.dump(constraints_map, f)
 # f.close()
 
 f = open('constraints.dump', 'rb')
-cons_map = pickle.load(f)
-max_dom = len(cons_map[0][0])
-num_vars = len(cons_map)
+constraints_map = pickle.load(f)
+max_domain = len(constraints_map[0][0])
+num_variables = len(constraints_map)
 f.close()
-# print(cons_map)
+# print(constraints_map)
 
-# max_dom = 3
-# num_vars = 3
-# cons_map = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-#               [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
-#               [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
-#              [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
+# max_domain = 3
+# num_variables = 3
+# constraints_map = [[[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+#                     [[1, 1, 1], [0, 0, 0], [0, 0, 0]],
+#                     [[0, 0, 0], [0, 1, 1], [0, 1, 0]]],
+#                    [[[1, 0, 0], [1, 0, 0], [1, 0, 0]],
 #               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
 #               [[1, 1, 1], [0, 1, 0], [1, 1, 0]]],
-#              [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
+#                    [[[0, 0, 0], [0, 1, 1], [0, 1, 0]],
 #               [[1, 0, 1], [1, 1, 1], [1, 0, 0]],
 #               [[1, 0, 0], [0, 1, 0], [0, 0, 1]]]]
 
-cons_map = torch.tensor(cons_map).type(torch.float)
+constraints_map = torch.tensor(constraints_map).type(torch.float)
 
 # build vars_map
-vars_map = []
-for _ in range(num_vars):
+variables_map = []
+for _ in range(num_variables):
     line = []
-    for _ in range(max_dom):
+    for _ in range(max_domain):
         line.append(1)
-    vars_map.append(line)
-vars_map = torch.tensor(vars_map).type(torch.float)
+    variables_map.append(line)
+variables_map = torch.tensor(variables_map).type(torch.float)
 
-print("cons shape:", cons_map.shape, " vars shape:", vars_map.shape)
-print(cons_map.type(), " ", vars_map.type())
+print("cons shape:", constraints_map.shape, " vars shape:", variables_map.shape)
+print(constraints_map.type(), " ", variables_map.type())
 
-vars_map = vars_map.to(device)
-cons_map = cons_map.to(device)
+variables_map = variables_map.to(device)
+constraints_map = constraints_map.to(device)
 
-bs = BackTrackSearcher(cons_map, num_vars, max_dom)
+bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
 
 ticks = time.time()
 
-if bs.dfs(0, vars_map):
+if bs.dfs(0, variables_map):
     print("got answer...")
     print(bs.answer.squeeze())
 else:
