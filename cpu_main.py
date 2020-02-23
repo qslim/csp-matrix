@@ -1,14 +1,13 @@
 from constraints_generator import constraints_generator
 import time
 import pickle
-
 from build_matrix import parser
 
 
 class SparseDom:
-    def __init__(self, N):
-        self.pointer = N - 1
-        self.dom = [i for i in range(N)]
+    def __init__(self, D):
+        self.pointer = D - 1
+        self.dom = [i for i in range(D)]
 
     def delete(self, index):
         tmp = self.dom[index]
@@ -113,11 +112,11 @@ class BackTrackSearcher:
         self.heapSize = 0
 
     def var_heuristics(self):
-        min_dom = 99999
+        min_dom = 10000
         min_index = -1
         for i in range(self.N):
             if self.vars_map[i].pointer > 0:
-                if min_dom > self.vars_map[i].pointer:
+                if self.vars_map[i].pointer <= min_dom:
                     min_index = i
                     min_dom = self.vars_map[i].pointer
         return min_index
@@ -178,6 +177,7 @@ class BackTrackSearcher:
             self.answer = self.vars_map
             return True
 
+        # backup
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
         sorted_dom = [self.vars_map[var_index].dom[i] for i in range(self.vars_map[var_index].pointer + 1)]
         sorted_dom.sort()
