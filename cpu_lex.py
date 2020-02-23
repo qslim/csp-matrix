@@ -101,11 +101,11 @@ class BackTrackSearcher:
         self.heapSize = 0
 
     def var_heuristics(self):
-        min_dom = 99999
+        min_dom = 10000
         min_index = -1
         for i in range(self.N):
             if self.vars_map[i].pointer > 0:
-                if min_dom > self.vars_map[i].pointer:
+                if self.vars_map[i].pointer <= min_dom:
                     min_index = i
                     min_dom = self.vars_map[i].pointer
         return min_index
