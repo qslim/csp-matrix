@@ -13,7 +13,7 @@ def constraints_generator(max_dom, num_vars):
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         for i1 in range(max_dom):
             for i2 in range(max_dom):
-                val = random.randint(0, 2)
+                val = random.randint(0, 9)
                 if val > 0:
                     rel_map[i1][i2] = 1
                     rel_map_r[i2][i1] = 1

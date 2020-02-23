@@ -8,17 +8,25 @@ class SparseDom:
     def __init__(self, D):
         self.pointer = D - 1
         self.dom = [i for i in range(D)]
+        self.idx = [i for i in range(D)]
 
     def delete(self, index):
-        tmp = self.dom[index]
-        self.dom[index] = self.dom[self.pointer]
-        self.dom[self.pointer] = tmp
+        val = self.dom[index]
+        tail_val = self.dom[self.pointer]
+        self.dom[index] = tail_val
+        self.idx[tail_val] = index
+        self.dom[self.pointer] = val
+        self.idx[val] = self.pointer
         self.pointer -= 1
 
-    def assign(self, index):
-        tmp = self.dom[0]
-        self.dom[0] = self.dom[index]
-        self.dom[index] = tmp
+    def assign(self, val):
+        idx_v = self.idx[val]
+        head_val = self.dom[0]
+        self.dom[0] = val
+        self.idx[val] = 0
+        self.dom[idx_v] = head_val
+        self.idx[head_val] = idx_v
+
         self.pointer = 0
 
 
