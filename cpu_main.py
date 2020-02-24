@@ -1,7 +1,7 @@
-from constraints_generator import constraints_generator
 import time
+from utils.build_matrix import parser
+from utils.constraints_generator import constraints_generator
 import pickle
-from build_matrix import parser
 
 
 class SparseDom:
@@ -211,7 +211,7 @@ class BackTrackSearcher:
 
 
 num_variables, max_domain, vars_map_cpu, constraints_map = \
-    parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
+    parser("benchmark/tightness0.1/rand-2-40-8-753-100-1_ext.xml")
 
 # max_domain = 10
 # num_variables = 10
