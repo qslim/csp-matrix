@@ -2,6 +2,7 @@ import torch
 from constraints_generator import constraints_generator
 import time
 import pickle
+from build_matrix import parser
 
 
 device = torch.device("cpu")
@@ -84,8 +85,8 @@ class BackTrackSearcher:
         return False
 
 
-# num_vars, max_dom, vars_map_cpu, cons_map_ = \
-#     parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
+num_variables, max_domain, vars_map_cpu, constraints_map = \
+    parser("./tightness0.1/rand-2-40-8-753-100-1_ext.xml")
 
 # max_domain = 10
 # num_variables = 10
@@ -94,11 +95,11 @@ class BackTrackSearcher:
 # pickle.dump(constraints_map, f)
 # f.close()
 
-f = open('constraints.dump', 'rb')
-constraints_map = pickle.load(f)
-max_domain = len(constraints_map[0][0])
-num_variables = len(constraints_map)
-f.close()
+# f = open('constraints.dump', 'rb')
+# constraints_map = pickle.load(f)
+# max_domain = len(constraints_map[0][0])
+# num_variables = len(constraints_map)
+# f.close()
 # print(constraints_map)
 
 # max_domain = 3
