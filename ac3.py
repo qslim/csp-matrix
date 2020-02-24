@@ -42,6 +42,10 @@ class BackTrackSearcher:
         self.heapList = [-1 for _ in range(N)]
         self.heapMap = [-1 for _ in range(N)]
 
+        self.ts_v = [1 for _ in range(N)]
+        self.ts_c = [[0 for _ in range(N)] for _ in range(N)]
+        self.ts_global = 2
+
     def push(self, x):
         pos = self.heapSize
         qos = pos
@@ -145,6 +149,8 @@ class BackTrackSearcher:
         if self.vars_map[x].pointer != x_pre:
             if self.vars_map[x].pointer < 0:
                 return True
+            self.ts_v[x] = self.ts_global
+            self.ts_global += 1
             if self.heapMap[x] == -1:
                 self.push(x)
             else:
@@ -163,10 +169,13 @@ class BackTrackSearcher:
         while self.heapSize > 0:
             var = self.pop()
             for i in range(self.N):
-                if var != i and (self.revise(var, i) or
-                                 self.revise(i, var)):
-                    self.heap_clear()
-                    return False
+                if var != i and self.ts_v[var] > self.ts_c[var][i]:
+                    if self.revise(var, i) or self.revise(i, var):
+                        self.heap_clear()
+                        return False
+                    self.ts_c[var][i] = self.ts_global
+                    self.ts_c[i][var] = self.ts_global
+                    self.ts_global += 1
         return True
 
     def dfs(self, level, var_index):
@@ -191,10 +200,13 @@ class BackTrackSearcher:
         sorted_dom.sort()
         for i in sorted_dom:
             self.vars_map[var_index].assign(i)
+            self.ts_v[var_index] = self.ts_global
+            self.ts_global += 1
             if self.dfs(level + 1, var_index):
                 return True
             for j in range(self.N):
                 self.vars_map[j].pointer = backup_vars[j]
+                self.ts_v[j] = 0
         return False
 
 
