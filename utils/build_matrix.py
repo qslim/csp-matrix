@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-import torch
+import numpy as np
 
 
 def parser(path):
@@ -88,7 +88,7 @@ def parser(path):
         cube = []
         for j in range(num_vars):
             if i == j:
-                cube.append(torch.eye(max_dom).tolist())
+                cube.append(np.eye(max_dom, dtype=int).tolist())
             elif cons_to_rel[i][j] == -1:
                 cube.append([[1 for _ in range(max_dom)] for _ in range(max_dom)])
             else:
