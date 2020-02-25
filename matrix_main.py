@@ -23,8 +23,7 @@ class ACEnforcer:
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
             vars_map_pre = vars_map
             nnd = torch.matmul(self.cons_map, vars_map.unsqueeze(2)).squeeze()
-            nnd_reduce = torch.where(nnd > 1, self.nnd_mask1, nnd)
-            nd = nnd_reduce.sum(1, keepdim=True).squeeze()
+            nd = torch.where(nnd > 1, self.nnd_mask1, nnd).sum(1)
             vars_map = torch.where(nd == self.N, self.nd_mask1, self.nd_mask0)
             if (vars_map.sum(1) == self.n1_mask0).any():
                 return None
