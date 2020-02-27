@@ -47,13 +47,12 @@ class SACEnforcer:
             ndnnd_reduce = torch.where(ndnnd > 1, self.ndnnd_mask1, ndnnd)
             ndnd = ndnnd_reduce.sum(3)
             ndnd = torch.where(ndnd == self.N, self.ndnd_mask1, self.ndnd_mask0)
-
-            ndn = ndnd.sum(3)
-            ndn = torch.where(ndn > 1, self.ndn_mask1, ndn)
-            nd = ndn.sum(2)
-            vars_map = torch.where(nd == self.N, self.nd_mask1, self.nd_mask0)
-            if (vars_map.sum(1) == self.n1_mask0).any():
-                return None
+        ndn = ndnd.sum(3)
+        ndn = torch.where(ndn > 1, self.ndn_mask1, ndn)
+        nd = ndn.sum(2)
+        vars_map = torch.where(nd == self.N, self.nd_mask1, self.nd_mask0)
+        if (vars_map.sum(1) == self.n1_mask0).any():
+            return None
 
         return vars_map
 
