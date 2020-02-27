@@ -20,18 +20,30 @@ class SACEnforcer:
         self.ndn_mask1 = torch.ones((N, D, N)).to(device)
         self.nd_mask1 = torch.ones((N, D)).to(device)
         self.nd_mask0 = torch.zeros((N, D)).to(device)
+        self.assigh_mask = self.build_assign_mask(N, D).to(device)
+
+    @staticmethod
+    def build_assign_mask(N, D):
+        assign_mask = torch.ones((N, D, N, D))
+        for i in range(N):
+            for j in range(D):
+                nd = assign_mask[i][j]
+                for k in range(D):
+                    if j != k:
+                        nd[i][k] = 0
+        return assign_mask
 
     def ac_enforcer(self, vars_map):
         ndnd = vars_map.unsqueeze(0)
         ndnd = ndnd.unsqueeze(0)
         ndnd = ndnd.expand(self.N, self.D, self.N, self.D)
-        vars_map_pre = self.nd_mask0
-        while not torch.equal(vars_map, vars_map_pre):
+        ndnd = torch.where(self.assigh_mask == 0, self.assigh_mask, ndnd)
+        vars_map_pre = self.ndnd_mask0
+        while not torch.equal(ndnd, vars_map_pre):
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-            vars_map_pre = vars_map
+            vars_map_pre = ndnd
             nd1nd = ndnd.unsqueeze(2)
-            nd1nd1 = nd1nd.unsqueeze(5)
-            ndnnd = torch.matmul(self.cons_map, nd1nd1).squeeze()
+            ndnnd = torch.matmul(self.cons_map, nd1nd.unsqueeze(5)).squeeze()
             ndnnd_reduce = torch.where(ndnnd > 1, self.ndnnd_mask1, ndnnd)
             ndnd = ndnnd_reduce.sum(3)
             ndnd = torch.where(ndnd == self.N, self.ndnd_mask1, self.ndnd_mask0)
