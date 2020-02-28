@@ -170,7 +170,8 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in self.unassigned.dom:
+            for idxi in range(self.unassigned.pointer + 1):
+                i = self.unassigned.dom[idxi]
                 if var != i and self.ts_v[var] > self.ts_c[var][i]:
                     if self.revise(var, i) or self.revise(i, var):
                         self.heap_clear()
