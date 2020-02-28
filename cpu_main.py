@@ -46,8 +46,6 @@ class BackTrackSearcher:
         self.ts_c = [[0 for _ in range(N)] for _ in range(N)]
         self.ts_global = 2
 
-        self.unassigned = SparseDom(N)
-
     def push(self, x):
         pos = self.heapSize
         qos = pos
@@ -170,7 +168,7 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in self.unassigned.dom:
+            for i in range(self.N):
                 if var != i and self.ts_v[var] > self.ts_c[var][i]:
                     if self.revise(var, i) or self.revise(i, var):
                         self.heap_clear()
@@ -200,7 +198,6 @@ class BackTrackSearcher:
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
         sorted_dom = [self.vars_map[var_index].dom[i] for i in range(self.vars_map[var_index].pointer + 1)]
         sorted_dom.sort()
-        self.unassigned.delete(var_index)
         for i in sorted_dom:
             self.vars_map[var_index].assign(i)
             self.ts_v[var_index] = self.ts_global
@@ -210,7 +207,6 @@ class BackTrackSearcher:
             for j in range(self.N):
                 self.vars_map[j].pointer = backup_vars[j]
                 self.ts_v[j] = 0
-        self.unassigned.pointer += 1
         return False
 
 
