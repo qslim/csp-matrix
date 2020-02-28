@@ -161,8 +161,8 @@ class BackTrackSearcher:
 
     def ac_enforcer(self, var_id=None):
         if var_id is None:
-            for i in range(self.N):
-                self.push(i)
+            for x in range(self.N):
+                self.push(x)
         else:
             self.push(var_id)
 
@@ -170,13 +170,14 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in self.unassigned.dom:
-                if var != i and self.ts_v[var] > self.ts_c[var][i]:
-                    if self.revise(var, i) or self.revise(i, var):
+            for i in range(self.unassigned.pointer + 1):
+                x = self.unassigned.dom[i]
+                if var != x and self.ts_v[var] > self.ts_c[var][x]:
+                    if self.revise(var, x) or self.revise(x, var):
                         self.heap_clear()
                         return False
-                    self.ts_c[var][i] = self.ts_global
-                    self.ts_c[i][var] = self.ts_global
+                    self.ts_c[var][x] = self.ts_global
+                    self.ts_c[x][var] = self.ts_global
                     self.ts_global += 1
         return True
 
