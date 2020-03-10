@@ -2,6 +2,7 @@ import numpy as np
 import random
 import pickle
 import sys
+import time
 
 
 def constraints_generator(max_dom, num_vars, density, Diffy):
@@ -62,6 +63,7 @@ bm_name = '../csp-benchmark/conmap-' \
           + '-' + str(max_domain) \
           + '-' + str(con_density) \
           + '-' + str(differenty) \
+          + '-' + str(time.time()) \
           + '.dump'
 
 constraints_map = constraints_generator(max_domain, num_variables, con_density, differenty)
