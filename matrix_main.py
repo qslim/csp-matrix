@@ -115,13 +115,13 @@ bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
 
 ticks = time.time()
 
-if bs.dfs(0, variables_map):
-    print("got answer...")
-    print(bs.answer.squeeze())
-else:
-    print("no answer...")
+# if bs.dfs(0, variables_map):
+#     print("got answer...")
+#     print(bs.answer.squeeze())
+# else:
+#     print("no answer...")
+bs.dfs(0, variables_map)
 print(bs.count)
-
 print("Lasts =", time.time() - ticks)
 
 # print("Node =", bs.count)
