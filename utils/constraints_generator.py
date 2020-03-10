@@ -1,19 +1,23 @@
 import numpy as np
 import random
+import pickle
+import sys
 
 
-def constraints_generator(max_dom, num_vars):
+def constraints_generator(max_dom, num_vars, density, Diffy):
     # build rels_map
     rels_map = []
     rels_map_r = []
-    # num_cons = num_vars * (num_vars - 1) // 2
-    num_cons = num_vars
+    if Diffy == 1:
+        num_cons = num_vars * (num_vars - 1) // 2
+    else:
+        num_cons = num_vars
     for r1 in range(num_cons):
         rel_map = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         for i1 in range(max_dom):
             for i2 in range(max_dom):
-                val = random.randint(0, 9)
+                val = random.randint(0, density)
                 if val > 0:
                     rel_map[i1][i2] = 1
                     rel_map_r[i2][i1] = 1
@@ -45,5 +49,25 @@ def constraints_generator(max_dom, num_vars):
         cons_map.append(cube)
 
     return cons_map
+
+
+num_variables = int(sys.argv[1])
+max_domain = int(sys.argv[2])
+con_density = int(sys.argv[3])
+differenty = int(sys.argv[4])
+print('num_variables:', num_variables, 'max_domain:', max_domain,
+      'con_density:', con_density, 'differenty:', differenty)
+bm_name = '../csp-benchmark/conmap-' \
+          + str(num_variables) \
+          + '-' + str(max_domain) \
+          + '-' + str(con_density) \
+          + '-' + str(differenty) \
+          + '.dump'
+
+constraints_map = constraints_generator(max_domain, num_variables, con_density, differenty)
+f = open(bm_name, 'wb')
+pickle.dump(constraints_map, f)
+f.close()
+
 
 
