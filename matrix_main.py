@@ -5,9 +5,6 @@ import pickle
 import sys
 
 
-device = torch.device("cpu")
-
-
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
         self.N = N
@@ -86,7 +83,9 @@ class BackTrackSearcher:
         return False
 
 
-bm_name = sys.argv[1]
+chosen_device = sys.argv[1]
+device = torch.device(chosen_device)
+bm_name = sys.argv[2]
 cutoff = int(sys.argv[2])
 f = open(bm_name, 'rb')
 constraints_map = pickle.load(f)
