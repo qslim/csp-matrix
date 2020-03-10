@@ -185,7 +185,7 @@ class BackTrackSearcher:
         if self.count % 100 == 0:
             print(level, self.count)
             if self.count >= cutoff:
-                return True
+                return False
         if level == self.N:
             self.answer = self.vars_map
             return True
