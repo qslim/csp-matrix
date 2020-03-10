@@ -57,9 +57,11 @@ class BackTrackSearcher:
         return min_index
 
     def dfs(self, level, vars_pre):
-        # print(level)
         self.count += 1
-        print(level, self.count)
+        if self.count % 100 == 0:
+            print(level, self.count)
+            if self.count >= cutoff:
+                return True
         if level == self.N:
             self.answer = vars_pre
             return True
@@ -85,6 +87,7 @@ class BackTrackSearcher:
 
 
 bm_name = sys.argv[1]
+cutoff = int(sys.argv[2])
 f = open(bm_name, 'rb')
 constraints_map = pickle.load(f)
 max_domain = len(constraints_map[0][0])

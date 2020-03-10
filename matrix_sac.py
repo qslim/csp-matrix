@@ -85,7 +85,6 @@ class BackTrackSearcher:
         return min_index
 
     def dfs(self, level, vars_pre):
-        # print(level)
         self.count += 1
         print(level, self.count)
         if level == self.N:
