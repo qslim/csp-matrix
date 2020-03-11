@@ -111,8 +111,8 @@ variables_map = variables_map.to(device)
 constraints_map = constraints_map.to(device)
 
 bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
-
 ticks = time.time()
+print(bs)
 
 # if bs.dfs(0, variables_map):
 #     print("got answer...")

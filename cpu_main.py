@@ -231,8 +231,8 @@ for _ in range(num_variables):
     variables_map.append(line)
 
 bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
-
 ticks = time.time()
+print(bs)
 
 # if bs.dfs(0, None):
 #     print("got answer...")
