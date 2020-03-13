@@ -1,8 +1,8 @@
 import numpy as np
 import random
-import pickle
 import sys
 import time
+import json
 
 
 def constraints_generator(max_dom, num_vars, density, Diffy):
@@ -64,12 +64,17 @@ bm_name = '../csp-benchmark/conmap-' \
           + '-' + str(con_density) \
           + '-' + str(differenty) \
           + '-' + str(int(time.time())) \
-          + '.dump'
+          + '.json'
 
 constraints_map = constraints_generator(max_domain, num_variables, con_density, differenty)
-f = open(bm_name, 'wb')
-pickle.dump(constraints_map, f)
-f.close()
+json_string = json.dumps(constraints_map)
+# print(json_string)
+# f = open(bm_name, 'w')
+# f.write(json_string)
+# f.close()
+
+with open(bm_name, 'w') as f:
+    json.dump(json_string, f)
 
 
 
