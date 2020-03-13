@@ -55,10 +55,7 @@ class BackTrackSearcher:
 
     def dfs(self, level, vars_pre):
         self.count += 1
-        if self.count % 100 == 0:
-            print(level, self.count)
-            if self.count >= cutoff:
-                return True
+        print(level, self.count)
         if level == self.N:
             self.answer = vars_pre
             return True
@@ -111,17 +108,18 @@ variables_map = variables_map.to(device)
 constraints_map = constraints_map.to(device)
 
 bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
+
 ticks = time.time()
-print(bs)
 
 # if bs.dfs(0, variables_map):
 #     print("got answer...")
 #     print(bs.answer.squeeze())
 # else:
 #     print("no answer...")
-bs.dfs(0, variables_map)
-print(bs.count)
+satisfied = bs.dfs(0, variables_map)
 print("Lasts =", time.time() - ticks)
+print(bs.count)
+print(satisfied)
 
 # print("Node =", bs.count)
 # print("Iterations =", bs.acer.count)
