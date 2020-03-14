@@ -55,7 +55,10 @@ class BackTrackSearcher:
 
     def dfs(self, level, vars_pre):
         self.count += 1
-        print(level, self.count)
+        if self.count % 100 == 0:
+            print(level, self.count)
+            if self.count >= cutoff:
+                return True
         if level == self.N:
             self.answer = vars_pre
             return True
