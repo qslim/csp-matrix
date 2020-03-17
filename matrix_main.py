@@ -13,10 +13,12 @@ class ACEnforcer:
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
         self.nd_mask1 = torch.ones((N, D)).to(device)
         self.nd_mask0 = torch.zeros((N, D)).to(device)
+        self.iteration_count = 0
 
     def ac_enforcer(self, vars_map):
         vars_map_pre = self.nd_mask0
         while not torch.equal(vars_map, vars_map_pre):
+            self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
             vars_map_pre = vars_map
             nnd = torch.matmul(self.cons_map, vars_map.unsqueeze(2)).squeeze()
@@ -122,6 +124,7 @@ ticks = time.time()
 satisfied = bs.dfs(0, variables_map)
 print("Lasts =", time.time() - ticks)
 print(bs.count)
+print(bs.acer.iteration_count / bs.count)
 print(satisfied)
 
 # print("Node =", bs.count)

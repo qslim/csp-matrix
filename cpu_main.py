@@ -48,6 +48,8 @@ class BackTrackSearcher:
 
         self.assign_map = [0 for _ in range(N)]
 
+        self.revise_count = 0
+
     def push(self, x):
         pos = self.heapSize
         qos = pos
@@ -136,6 +138,7 @@ class BackTrackSearcher:
         return min_index
 
     def revise(self, x, y):
+        self.revise_count += 1
         con_map = self.cons_map[x][y]
         x_pre = self.vars_map[x].pointer
         for i in range(self.vars_map[x].pointer, -1, -1):
@@ -243,6 +246,7 @@ ticks = time.time()
 satisfied = bs.dfs(0, None)
 print("Lasts =", time.time() - ticks)
 print(bs.count)
+print(bs.revise_count / bs.count)
 print(satisfied)
 
 # print("Node =", bs.count)
