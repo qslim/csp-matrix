@@ -9,25 +9,53 @@ class ACEnforcer:
     def __init__(self, cons_map, N, D):
         self.N = N
         self.cons_map = cons_map
-        self.n1_mask0 = torch.zeros((N, 1)).to(device)
+        self.n1_mask0 = torch.zeros(N).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
         self.nd_mask1 = torch.ones((N, D)).to(device)
         self.nd_mask0 = torch.zeros((N, D)).to(device)
         self.iteration_count = 0
+        # self.n_true = torch.tensor([True for _ in range(N)]).to(device)
+        # self.n_false = torch.tensor([False for _ in range(N)]).to(device)
+        self.idx_mask = torch.tensor([True for _ in range(N)]).to(device)
 
     def ac_enforcer(self, vars_map):
-        vars_map_pre = self.nd_mask0
-        while not torch.equal(vars_map, vars_map_pre):
+        idx = self.idx_mask
+        num_idx = self.N
+        while num_idx != 0:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-            vars_map_pre = vars_map
-            nnd = torch.matmul(self.cons_map, vars_map.unsqueeze(2)).squeeze()
-            nd = torch.where(nnd > 1, self.nnd_mask1, nnd).sum(1)
-            vars_map_reduced = torch.where(nd != self.N, self.nd_mask0, vars_map)
+            vars_map_pre = vars_map.sum(1)
+            nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+            nd = torch.where(nkd > 1, self.nnd_mask1[:, idx, :], nkd).sum(1)
+            vars_map_reduced = torch.where(nd != num_idx, self.nd_mask0, vars_map)
             if (vars_map_reduced.sum(1) == self.n1_mask0).any():
                 return None
             vars_map = vars_map_reduced
+            idx = vars_map.sum(1) != vars_map_pre
+            num_idx = torch.count_nonzero(idx)
         return vars_map
+
+    # def ac_enforcer(self, vars_map):
+    #     vars_map_pre = self.n1_mask0
+    #     vars_map_sum = vars_map.sum(1)
+    #     while not torch.equal(vars_map_sum, vars_map_pre):
+    #         self.iteration_count += 1
+    #         # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+    #         idx = vars_map_sum != vars_map_pre
+    #         # idx = torch.where(vars_map_sum != vars_map_pre, self.n_true, self.n_false)
+    #         # print(idx)
+    #         num_idx = torch.count_nonzero(idx)
+    #         # print(num_idx)
+    #         # print(num_idx == torch.where(vars_map.sum(1) != vars_map_pre.sum(1), torch.ones(self.N).to(device), torch.zeros(self.N).to(device)).sum(0))
+    #         vars_map_pre = vars_map.sum(1)
+    #         nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+    #         nd = torch.where(nkd > 1, self.nnd_mask1[:, idx, :], nkd).sum(1)
+    #         vars_map_reduced = torch.where(nd != num_idx, self.nd_mask0, vars_map)
+    #         if (vars_map_reduced.sum(1) == self.n1_mask0).any():
+    #             return None
+    #         vars_map = vars_map_reduced
+    #         vars_map_sum = vars_map.sum(1)
+    #     return vars_map
 
     # def ac_enforcer(self, vars_map):
     #     vars_map_pre = self.n1_mask0
