@@ -16,7 +16,7 @@ class ACEnforcer:
         self.iteration_count = 0
         # self.n_true = torch.tensor([True for _ in range(N)]).to(device)
         # self.n_false = torch.tensor([False for _ in range(N)]).to(device)
-        self.idx_mask = torch.tensor([True for _ in range(N)]).to(device)
+        self.idx_mask = torch.tensor([i for i in range(N)]).to(device)
 
     def ac_enforcer(self, vars_map):
         idx = self.idx_mask
@@ -26,15 +26,15 @@ class ACEnforcer:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
             nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
-            nd = torch.where(nkd > 1, self.nnd_mask1[:, idx, :], nkd).sum(1)
+            nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
             vars_map_reduced = torch.where(nd != num_idx, self.nd_mask0, vars_map)
             vars_map = vars_map_reduced
             vars_map_sum = vars_map.sum(1)
             if (vars_map_sum == self.n1_mask0).any():
                 return None
-            idx = vars_map_sum != vars_map_pre
+            idx = (vars_map_sum != vars_map_pre).nonzero(as_tuple=True)[0]
             vars_map_pre = vars_map_sum
-            num_idx = torch.count_nonzero(idx)
+            num_idx = idx.shape[0]
         return vars_map
 
     # def ac_enforcer(self, vars_map):
