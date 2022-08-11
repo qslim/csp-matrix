@@ -21,17 +21,19 @@ class ACEnforcer:
     def ac_enforcer(self, vars_map):
         idx = self.idx_mask
         num_idx = self.N
+        vars_map_pre = vars_map.sum(1)
         while num_idx != 0:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-            vars_map_pre = vars_map.sum(1)
             nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
             nd = torch.where(nkd > 1, self.nnd_mask1[:, idx, :], nkd).sum(1)
             vars_map_reduced = torch.where(nd != num_idx, self.nd_mask0, vars_map)
-            if (vars_map_reduced.sum(1) == self.n1_mask0).any():
-                return None
             vars_map = vars_map_reduced
-            idx = vars_map.sum(1) != vars_map_pre
+            vars_map_sum = vars_map.sum(1)
+            if (vars_map_sum == self.n1_mask0).any():
+                return None
+            idx = vars_map_sum != vars_map_pre
+            vars_map_pre = vars_map_sum
             num_idx = torch.count_nonzero(idx)
         return vars_map
 
