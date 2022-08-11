@@ -7,17 +7,14 @@ import sys
 
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
-        self.N = N
         self.cons_map = cons_map
         self.n_mask0 = torch.zeros(N).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
         self.nd_mask0 = torch.zeros((N, D)).to(device)
         self.iteration_count = 0
-        self.idx_mask = torch.tensor([i for i in range(N)]).to(device)
 
-    def ac_enforcer(self, vars_map):
-        idx = self.idx_mask
-        num_idx = self.N
+    def ac_enforcer(self, vars_map, idx):
+        num_idx = idx.shape[0]
         vars_map_pre = vars_map.sum(1)
         while num_idx != 0:
             self.iteration_count += 1
@@ -71,7 +68,6 @@ class BackTrackSearcher:
             self.answer = vars_pre
             return True
 
-        vars_pre = self.acer.ac_enforcer(vars_pre)
         if vars_pre is None:
             return False
 
@@ -85,6 +81,7 @@ class BackTrackSearcher:
             if var[i] == 0:
                 continue
             vars_re = self.assignment(var_index, i, vars_pre)
+            vars_re = self.acer.ac_enforcer(vars_re, idx=torch.tensor([var_index]))
             if self.dfs(level + 1, vars_re):
                 return True
 
@@ -127,6 +124,7 @@ ticks = time.time()
 #     print(bs.answer.squeeze())
 # else:
 #     print("no answer...")
+variables_map = bs.acer.ac_enforcer(variables_map, idx=torch.tensor([i for i in range(num_variables)]))
 satisfied = bs.dfs(0, variables_map)
 print("Lasts =", time.time() - ticks)
 print(bs.count)
