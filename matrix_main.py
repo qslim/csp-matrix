@@ -29,6 +29,19 @@ class ACEnforcer:
             vars_map = vars_map_reduced
         return vars_map
 
+    # def ac_enforcer(self, vars_map):
+    #     vars_map_pre = self.n1_mask0
+    #     while not torch.equal(vars_map.sum(1), vars_map_pre):
+    #         self.iteration_count += 1
+    #         # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+    #         vars_map_pre = vars_map.sum(1)
+    #         nnd = torch.matmul(self.cons_map, vars_map.unsqueeze(2)).squeeze()
+    #         nnd[nnd > 1] = 1
+    #         vars_map[nnd.sum(1) != self.N] = 0
+    #         if (vars_map.sum(1) == self.n1_mask0).any():
+    #             return None
+    #     return vars_map
+
 
 class BackTrackSearcher:
     def __init__(self, rel_, N, D):
