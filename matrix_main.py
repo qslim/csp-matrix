@@ -7,7 +7,6 @@ import sys
 
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
-        self.N = N
         self.cons_map = cons_map
         self.n_mask0 = torch.zeros(N).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
@@ -17,21 +16,24 @@ class ACEnforcer:
 
     def ac_enforcer(self, vars_map):
         idx = self.idx_mask
-        num_idx = self.N
+        num_idx = idx.shape[0]
         vars_map_pre = vars_map.sum(1)
         while num_idx != 0:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
+
             nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
             nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
-            vars_map_reduced = torch.where(nd != num_idx, self.nd_mask0, vars_map)
-            vars_map = vars_map_reduced
+
+            vars_map = torch.where(nd != num_idx, self.nd_mask0, vars_map)
+
             vars_map_sum = vars_map.sum(1)
             if (vars_map_sum == self.n_mask0).any():
                 return None
             idx = (vars_map_sum != vars_map_pre).nonzero(as_tuple=True)[0]
-            vars_map_pre = vars_map_sum
             num_idx = idx.shape[0]
+            vars_map_pre = vars_map_sum
+
         return vars_map
 
 
