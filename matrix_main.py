@@ -29,22 +29,24 @@ class ACEnforcer:
             nnd1 = torch.matmul(self.cons_map[:, :, :, :], vars_map[:, :].unsqueeze(2)).squeeze()
             nd1 = torch.where(nnd1 > 1, self.nnd_mask1[:, :, :], nnd1).sum(1)
             # nd1_map = torch.where(nd1 == self.N, self.nd_mask1, self.nd_mask0)
-            vars_map_reduced1 = torch.where(nd1 != self.N, self.nd_mask0, vars_map)
+            vars_map_reduced1 = torch.where(nd1 == self.N, vars_map, self.nd_mask0)
 
-            nnd2 = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+            nnd2 = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze(-1)
             nd2 = torch.where(nnd2 > 1, self.nnd_mask1[:, : idx.shape[0], :], nnd2).sum(1)
             # nd2_map = torch.where(nd2 == idx.shape[0], self.nd_mask1, self.nd_mask0)
-            vars_map_reduced2 = torch.where(nd2 != idx.shape[0], self.nd_mask0, vars_map)
+            vars_map_reduced2 = torch.where(nd2 == idx.shape[0], vars_map, self.nd_mask0)
 
             # print(torch.equal(vars_map_reduced1, vars_map_reduced2), self.iteration_count)
             if not torch.equal(vars_map_reduced1, vars_map_reduced2):
-                print(vars_map_reduced1)
-                print("--------")
-                print(vars_map_reduced2)
+                print(idx)
+                print(nnd2.shape)
+                # print(nd1)
+                # print("--------")
+                # print(nd2)
 
             vars_map_reduced = torch.where(nd1 != self.N, self.nd_mask0, vars_map)
-            # if (vars_map_reduced.sum(1) == self.n_mask0).any():
-            #     return None
+            if (vars_map_reduced.sum(1) == self.n_mask0).any():
+                return None
             vars_map = vars_map_reduced
             idx = (vars_map.sum(1) != vars_map_pre.sum(1)).nonzero(as_tuple=True)[0]
         return vars_map
