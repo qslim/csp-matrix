@@ -16,24 +16,18 @@ class ACEnforcer:
 
     def ac_enforcer(self, vars_map):
         idx = self.idx_mask
-        num_idx = idx.shape[0]
-        vars_map_pre = vars_map.sum(1)
-        while num_idx != 0:
+        vars_map_pre = self.nd_mask0
+        while not torch.equal(vars_map, vars_map_pre):
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-
-            nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
-            nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
-
-            vars_map = torch.where(nd != num_idx, self.nd_mask0, vars_map)
-
-            vars_map_sum = vars_map.sum(1)
-            if (vars_map_sum == self.n_mask0).any():
+            vars_map_pre = vars_map
+            nnd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+            nd = torch.where(nnd > 1, self.nnd_mask1[:, : idx.shape[0], :], nnd).sum(1)
+            vars_map_reduced = torch.where(nd != idx.shape[0], self.nd_mask0, vars_map)
+            if (vars_map_reduced.sum(1) == self.n_mask0).any():
                 return None
-            idx = (vars_map_sum != vars_map_pre).nonzero(as_tuple=True)[0]
-            num_idx = idx.shape[0]
-            vars_map_pre = vars_map_sum
-
+            vars_map = vars_map_reduced
+            idx = (vars_map.sum(1) != vars_map_pre.sum(1)).nonzero(as_tuple=True)[0]
         return vars_map
 
 
