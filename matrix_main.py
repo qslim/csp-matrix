@@ -7,7 +7,6 @@ import sys
 
 class ACEnforcer:
     def __init__(self, cons_map, N, D):
-        self.N = N
         self.cons_map = cons_map
         self.n_mask0 = torch.zeros(N).to(device)
         self.nnd_mask1 = torch.ones((N, N, D)).to(device)
@@ -15,40 +14,26 @@ class ACEnforcer:
         self.iteration_count = 0
         self.idx_mask = torch.tensor([i for i in range(N)]).to(device)
 
-        self.nd_mask1 = torch.ones((N, D)).to(device)
-
     def ac_enforcer(self, vars_map):
         idx = self.idx_mask
-        vars_map_pre = self.nd_mask0
-        self.iteration_count = 0
-        while not torch.equal(vars_map, vars_map_pre):
+        num_idx = idx.shape[0]
+        vars_map_pre = vars_map.sum(1)
+        while num_idx != 0:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
-            vars_map_pre = vars_map
 
-            nnd1 = torch.matmul(self.cons_map[:, :, :, :], vars_map[:, :].unsqueeze(2)).squeeze()
-            nd1 = torch.where(nnd1 > 1, self.nnd_mask1[:, :, :], nnd1).sum(1)
-            # nd1_map = torch.where(nd1 == self.N, self.nd_mask1, self.nd_mask0)
-            vars_map_reduced1 = torch.where(nd1 == self.N, vars_map, self.nd_mask0)
+            nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+            nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
 
-            nnd2 = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze(-1)
-            nd2 = torch.where(nnd2 > 1, self.nnd_mask1[:, : idx.shape[0], :], nnd2).sum(1)
-            # nd2_map = torch.where(nd2 == idx.shape[0], self.nd_mask1, self.nd_mask0)
-            vars_map_reduced2 = torch.where(nd2 == idx.shape[0], vars_map, self.nd_mask0)
+            vars_map = torch.where(nd != num_idx, self.nd_mask0, vars_map)
 
-            # print(torch.equal(vars_map_reduced1, vars_map_reduced2), self.iteration_count)
-            if not torch.equal(vars_map_reduced1, vars_map_reduced2):
-                print(idx)
-                print(nnd2.shape)
-                # print(nd1)
-                # print("--------")
-                # print(nd2)
-
-            vars_map_reduced = torch.where(nd1 != self.N, self.nd_mask0, vars_map)
-            if (vars_map_reduced.sum(1) == self.n_mask0).any():
+            vars_map_sum = vars_map.sum(1)
+            if (vars_map_sum == self.n_mask0).any():
                 return None
-            vars_map = vars_map_reduced
-            idx = (vars_map.sum(1) != vars_map_pre.sum(1)).nonzero(as_tuple=True)[0]
+            idx = (vars_map_sum != vars_map_pre).nonzero(as_tuple=True)[0]
+            num_idx = idx.shape[0]
+            vars_map_pre = vars_map_sum
+
         return vars_map
 
 
