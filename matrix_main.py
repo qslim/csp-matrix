@@ -22,7 +22,7 @@ class ACEnforcer:
             self.iteration_count += 1
             # print("~~~~~~~~~~~~~~~~~~~~~~~~")
 
-            nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze()
+            nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze(-1)
             nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
 
             vars_map = torch.where(nd != num_idx, self.nd_mask0, vars_map)
