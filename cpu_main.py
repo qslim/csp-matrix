@@ -203,10 +203,9 @@ class BackTrackSearcher:
 
         # backup
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
-        sorted_dom = [self.vars_map[var_index].dom[i] for i in range(self.vars_map[var_index].pointer + 1)]
-        sorted_dom.sort()
         self.assign_map[var_index] = 1
-        for i in sorted_dom:
+        for ptr in range(self.vars_map[var_index].pointer + 1):
+            i = self.vars_map[var_index].dom[ptr]
             self.vars_map[var_index].assign(i)
             self.ts_v[var_index] = self.ts_global
             self.ts_global += 1
