@@ -194,15 +194,22 @@ class BackTrackSearcher:
             return False
 
         var_index = self.var_heuristics()
+        # var_index = level
         if var_index == -1:
             self.answer = self.vars_map
             return True
 
         # backup
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
+
+        # sorted_dom = [self.vars_map[var_index].dom[i] for i in range(self.vars_map[var_index].pointer + 1)]
+        # sorted_dom.sort()
+        # self.assign_map[var_index] = 1
+        # for i in sorted_dom:
         self.assign_map[var_index] = 1
         for ptr in range(self.vars_map[var_index].pointer + 1):
             i = self.vars_map[var_index].dom[ptr]
+
             self.vars_map[var_index].assign(i)
             self.ts_v[var_index] = self.ts_global
             self.ts_global += 1
