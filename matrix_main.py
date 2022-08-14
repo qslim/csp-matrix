@@ -74,8 +74,8 @@ class BackTrackSearcher:
         if vars_pre is None:
             return False
 
-        var_index = self.var_heuristics(vars_pre)
-        # var_index = level
+        # var_index = self.var_heuristics(vars_pre)
+        var_index = level
         if var_index == -1:
             self.answer = vars_pre
             return True

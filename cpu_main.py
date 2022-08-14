@@ -193,8 +193,8 @@ class BackTrackSearcher:
         if not self.ac_enforcer(var_ids):
             return False
 
-        var_index = self.var_heuristics()
-        # var_index = level
+        # var_index = self.var_heuristics()
+        var_index = level
         if var_index == -1:
             self.answer = self.vars_map
             return True
