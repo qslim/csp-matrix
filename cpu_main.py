@@ -162,12 +162,9 @@ class BackTrackSearcher:
                 self.heap_up(x)
         return False
 
-    def ac_enforcer(self, var_id=None):
-        if var_id is None:
-            for i in range(self.N):
-                self.push(i)
-        else:
-            self.push(var_id)
+    def ac_enforcer(self, var_ids):
+        for i in var_ids:
+            self.push(i)
 
         # print(self.queue.qsize())
 
@@ -183,7 +180,7 @@ class BackTrackSearcher:
                     self.ts_global += 1
         return True
 
-    def dfs(self, level, var_index):
+    def dfs(self, level, var_ids):
         self.count += 1
         if self.count % 100 == 0:
             print(level, self.count)
@@ -193,7 +190,7 @@ class BackTrackSearcher:
             self.answer = self.vars_map
             return True
 
-        if not self.ac_enforcer(var_index):
+        if not self.ac_enforcer(var_ids):
             return False
 
         var_index = self.var_heuristics()
@@ -209,7 +206,7 @@ class BackTrackSearcher:
             self.vars_map[var_index].assign(i)
             self.ts_v[var_index] = self.ts_global
             self.ts_global += 1
-            if self.dfs(level + 1, var_index):
+            if self.dfs(level + 1, [var_index]):
                 return True
             for j in range(self.N):
                 self.vars_map[j].pointer = backup_vars[j]
@@ -242,7 +239,7 @@ ticks = time.time()
 #         print(ii.dom)
 # else:
 #     print("no answer...")
-satisfied = bs.dfs(0, None)
+satisfied = bs.dfs(0, [i for i in range(num_variables)])
 print("Lasts =", time.time() - ticks)
 print(bs.count)
 print(bs.revise_count / bs.count)
