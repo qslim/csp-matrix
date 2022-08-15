@@ -132,7 +132,7 @@ class BackTrackSearcher:
         min_index = -1
         for i in range(self.N):
             if self.vars_map[i].pointer > 0:
-                if self.vars_map[i].pointer <= min_dom:
+                if self.vars_map[i].pointer < min_dom:
                     min_index = i
                     min_dom = self.vars_map[i].pointer
         return min_index
