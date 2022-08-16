@@ -18,12 +18,15 @@ class ACEnforcer:
         vars_map_pre = vars_map.sum(1)
         while num_idx != 0:
             self.iteration_count += 1
-            # print("~~~~~~~~~~~~~~~~~~~~~~~~")
 
             nkd = torch.matmul(self.cons_map[:, idx, :, :], vars_map[idx, :].unsqueeze(2)).squeeze(-1)
+
             nd = torch.where(nkd > 1, self.nnd_mask1[:, : num_idx, :], nkd).sum(1)
+            # nd = (1 - torch.relu(1 - nkd)).sum(1)
 
             vars_map = torch.where(nd != num_idx, self.nd_mask0, vars_map)
+            # vars_map = torch.relu(nd - num_idx + 1) * vars_map
+            # vars_map = torch.div(nd, num_idx, rounding_mode='floor') * vars_map
 
             vars_map_sum = vars_map.sum(1)
             if (vars_map_sum == self.n_mask0).any():
