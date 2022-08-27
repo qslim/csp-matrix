@@ -2,6 +2,7 @@ import torch
 import time
 import pickle
 import sys
+import csv
 
 
 class ACEnforcer:
@@ -94,48 +95,69 @@ class BackTrackSearcher:
         return False
 
 
-chosen_device = sys.argv[1]
+chosen_device = 'cuda'
 device = torch.device(chosen_device)
-bm_name = sys.argv[2]
-cutoff = int(sys.argv[3])
-f = open(bm_name, 'rb')
-constraints_map = pickle.load(f)
-max_domain = len(constraints_map[0][0])
-num_variables = len(constraints_map)
-f.close()
+bm_name = None
+cutoff = -1
+bm_cut = [
+    ('conmap-50-10-10-1-1660374486.dump', 50000),
+    ('conmap-100-10-10-1-1660396557.dump', 50000)
+]
+csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
+with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvheader)
 
-constraints_map = torch.tensor(constraints_map).type(torch.float)
+    for bc in bm_cut:
+        bm_name = bc[0]
+        cutoff = bc[1]
 
-# build vars_map
-variables_map = []
-for _ in range(num_variables):
-    line = []
-    for _ in range(max_domain):
-        line.append(1)
-    variables_map.append(line)
-variables_map = torch.tensor(variables_map).type(torch.float)
+        f = open('csp-benchmark/var-10/' + bm_name, 'rb')
+        constraints_map = pickle.load(f)
+        max_domain = len(constraints_map[0][0])
+        num_variables = len(constraints_map)
+        f.close()
 
-print("cons shape:", constraints_map.shape, " vars shape:", variables_map.shape)
-print(constraints_map.type(), " ", variables_map.type())
+        constraints_map = torch.tensor(constraints_map).type(torch.float)
 
-variables_map = variables_map.to(device)
-constraints_map = constraints_map.to(device)
+        # build vars_map
+        variables_map = []
+        for _ in range(num_variables):
+            line = []
+            for _ in range(max_domain):
+                line.append(1)
+            variables_map.append(line)
+        variables_map = torch.tensor(variables_map).type(torch.float)
 
-bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
+        print("cons shape:", constraints_map.shape, " vars shape:", variables_map.shape)
+        print(constraints_map.type(), " ", variables_map.type())
 
-ticks = time.time()
+        variables_map = variables_map.to(device)
+        constraints_map = constraints_map.to(device)
 
-# if bs.dfs(0, variables_map):
-#     print("got answer...")
-#     print(bs.answer.squeeze())
-# else:
-#     print("no answer...")
-variables_map = bs.acer.ac_enforcer(variables_map, changed_idx=torch.tensor([i for i in range(num_variables)]))
-satisfied = bs.dfs(0, variables_map)
-print("Lasts =", time.time() - ticks)
-print(bs.count)
-print(bs.acer.ac_count / bs.count)
-print(satisfied)
+        bs = BackTrackSearcher(constraints_map, num_variables, max_domain)
 
-# print("Node =", bs.count)
-# print("Iterations =", bs.acer.count)
+        ticks = time.time()
+
+        # if bs.dfs(0, variables_map):
+        #     print("got answer...")
+        #     print(bs.answer.squeeze())
+        # else:
+        #     print("no answer...")
+        variables_map = bs.acer.ac_enforcer(variables_map, changed_idx=torch.tensor([i for i in range(num_variables)]))
+        satisfied = bs.dfs(0, variables_map)
+        duration = time.time() - ticks
+        count = bs.count
+        ac_per = bs.acer.ac_count / bs.count
+        print("Duration =", duration)
+        print(count)
+        print(ac_per)
+        print(satisfied)
+
+        csv_data = [
+            bm_name, duration, count, ac_per, satisfied
+        ]
+        writer.writerow(csv_data)
+
+        # print("Node =", bs.count)
+        # print("Iterations =", bs.acer.count)

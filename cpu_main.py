@@ -2,6 +2,7 @@ import time
 from utils.build_matrix import parser
 import pickle
 import sys
+import csv
 
 
 class SparseDom:
@@ -222,35 +223,56 @@ class BackTrackSearcher:
         return False
 
 
-bm_name = sys.argv[1]
-cutoff = int(sys.argv[2])
-f = open(bm_name, 'rb')
-constraints_map = pickle.load(f)
-max_domain = len(constraints_map[0][0])
-num_variables = len(constraints_map)
-f.close()
+bm_name = None
+cutoff = -1
+bm_cut = [
+    ('conmap-50-10-10-1-1660374486.dump', 50000),
+    ('conmap-100-10-10-1-1660396557.dump', 50000)
+]
+csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
+with open('trad_results.csv', 'w', encoding='UTF8', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvheader)
 
-# build vars_map
-variables_map = []
-for _ in range(num_variables):
-    line = SparseDom(max_domain)
-    variables_map.append(line)
+    for bc in bm_cut:
+        bm_name = bc[0]
+        cutoff = bc[1]
 
-bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
+        f = open('csp-benchmark/var-10/' + bm_name, 'rb')
+        constraints_map = pickle.load(f)
+        max_domain = len(constraints_map[0][0])
+        num_variables = len(constraints_map)
+        f.close()
 
-ticks = time.time()
+        # build vars_map
+        variables_map = []
+        for _ in range(num_variables):
+            line = SparseDom(max_domain)
+            variables_map.append(line)
 
-# if bs.dfs(0, None):
-#     print("got answer...")
-#     for ii in bs.answer:
-#         print(ii.dom)
-# else:
-#     print("no answer...")
-satisfied = bs.dfs(0, [i for i in range(num_variables)])
-print("Lasts =", time.time() - ticks)
-print(bs.count)
-print(bs.revise_count / bs.count)
-print(satisfied)
+        bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
 
-# print("Node =", bs.count)
-# print("Iterations =", bs.acer.count)
+        ticks = time.time()
+
+        # if bs.dfs(0, None):
+        #     print("got answer...")
+        #     for ii in bs.answer:
+        #         print(ii.dom)
+        # else:
+        #     print("no answer...")
+        satisfied = bs.dfs(0, [i for i in range(num_variables)])
+        duration = time.time() - ticks
+        count = bs.count
+        ac_per = bs.revise_count / bs.count
+        print("Duration =", duration)
+        print(count)
+        print(ac_per)
+        print(satisfied)
+
+        csv_data = [
+            bm_name, duration, count, ac_per, satisfied
+        ]
+        writer.writerow(csv_data)
+
+        # print("Node =", bs.count)
+        # print("Iterations =", bs.acer.count)
