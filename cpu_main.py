@@ -226,8 +226,7 @@ class BackTrackSearcher:
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('conmap-50-10-10-1-1660374486.dump', 50000),
-    ('conmap-100-10-10-1-1660396557.dump', 50000)
+    ('dom10-var100-den10-ts1661607461.dump', 50000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('trad_results.csv', 'w', encoding='UTF8', newline='') as f:
@@ -238,7 +237,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as f:
         bm_name = bc[0]
         cutoff = bc[1]
 
-        f = open('csp-benchmark/var-10/' + bm_name, 'rb')
+        f = open('rand_benchmark/' + bm_name, 'rb')
         constraints_map = pickle.load(f)
         max_domain = len(constraints_map[0][0])
         num_variables = len(constraints_map)

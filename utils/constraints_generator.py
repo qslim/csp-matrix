@@ -5,14 +5,11 @@ import sys
 import time
 
 
-def constraints_generator(max_dom, num_vars, density, Diffy):
+def constraints_generator(max_dom, num_vars, density):
     # build rels_map
     rels_map = []
     rels_map_r = []
-    if Diffy == 1:
-        num_cons = num_vars * (num_vars - 1) // 2
-    else:
-        num_cons = num_vars
+    num_cons = num_vars * (num_vars - 1) // 2
     for r1 in range(num_cons):
         rel_map = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
         rel_map_r = [[0 for _ in range(max_dom)] for _ in range(max_dom)]
@@ -33,8 +30,8 @@ def constraints_generator(max_dom, num_vars, density, Diffy):
             if i == j:
                 continue
             if i < j:
-                cons_mark[i][j] = cnt % num_cons
-                cons_mark[j][i] = cnt % num_cons
+                cons_mark[i][j] = cnt
+                cons_mark[j][i] = cnt
                 cnt += 1
 
     cons_map = []
@@ -52,21 +49,19 @@ def constraints_generator(max_dom, num_vars, density, Diffy):
     return cons_map
 
 
-num_variables = int(sys.argv[1])
-max_domain = int(sys.argv[2])
+max_domain = int(sys.argv[1])
+num_variables = int(sys.argv[2])
 con_density = int(sys.argv[3])
-differenty = int(sys.argv[4])
-print('num_variables:', num_variables, 'max_domain:', max_domain,
-      'con_density:', con_density, 'differenty:', differenty)
-bm_name = '../csp-benchmark/conmap-' \
-          + str(num_variables) \
-          + '-' + str(max_domain) \
-          + '-' + str(con_density) \
-          + '-' + str(differenty) \
-          + '-' + str(int(time.time())) \
+print('max_domain:', max_domain, 'num_variables:', num_variables, 'con_density:', con_density)
+benchmark_dir = '../rand_benchmark/var' + str(max_domain) + '/'
+bm_name = '../rand_benchmark/' \
+          + 'dom' + str(max_domain) \
+          + '-var' + str(num_variables) \
+          + '-den' + str(con_density) \
+          + '-ts' + str(int(time.time())) \
           + '.dump'
 
-constraints_map = constraints_generator(max_domain, num_variables, con_density, differenty)
+constraints_map = constraints_generator(max_domain, num_variables, con_density)
 f = open(bm_name, 'wb')
 pickle.dump(constraints_map, f)
 f.close()
