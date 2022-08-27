@@ -52,12 +52,15 @@ def constraints_generator(max_dom, num_vars, density):
 max_domain = int(sys.argv[1])
 num_variables = int(sys.argv[2])
 con_density = int(sys.argv[3])
-print('max_domain:', max_domain, 'num_variables:', num_variables, 'con_density:', con_density)
+seed = sys.argv[4]
+random.seed(seed)
+print('max_domain:', max_domain, 'num_variables:', num_variables, 'con_density:', con_density, 'seed:', seed)
 benchmark_dir = '../rand_benchmark/var' + str(max_domain) + '/'
 bm_name = '../rand_benchmark/' \
           + 'dom' + str(max_domain) \
           + '-var' + str(num_variables) \
           + '-den' + str(con_density) \
+          + '-seed' + str(seed) \
           + '-ts' + str(int(time.time())) \
           + '.dump'
 
