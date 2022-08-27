@@ -226,11 +226,16 @@ class BackTrackSearcher:
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('dom10-var100-den10-ts1661607461.dump', 50000)
+    ('dom10-var100-den10-ts1661607461.dump', 20000),
+    ('dom10-var200-den10-ts1661607878.dump', 20000),
+    ('dom10-var300-den10-ts1661607884.dump', 20000),
+    ('dom10-var400-den10-ts1661607890.dump', 20000),
+    ('dom10-var500-den10-ts1661607900.dump', 20000),
+    ('dom10-var600-den10-ts1661607978.dump', 20000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
-with open('trad_results.csv', 'w', encoding='UTF8', newline='') as f:
-    writer = csv.writer(f)
+with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
+    writer = csv.writer(mycsv)
     writer.writerow(csvheader)
 
     for bc in bm_cut:
@@ -272,6 +277,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as f:
             bm_name, duration, count, ac_per, satisfied
         ]
         writer.writerow(csv_data)
+        mycsv.flush()
 
         # print("Node =", bs.count)
         # print("Iterations =", bs.acer.count)
