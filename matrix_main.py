@@ -12,6 +12,7 @@ class ACEnforcer:
         self.nnd_mask1 = torch.ones((n_vars, n_vars, n_dom)).to(device)
         self.nd_mask0 = torch.zeros((n_vars, n_dom)).to(device)
         self.ac_count = 0
+        self.var_var = torch.ones((n_vars, n_vars)).to(device)
 
     def ac_enforcer(self, vars_map, changed_idx):
         n_idx = changed_idx.shape[0]
@@ -19,12 +20,16 @@ class ACEnforcer:
         while n_idx != 0:
             self.ac_count += 1
 
-            nkd = torch.matmul(self.cons_map[:, changed_idx, :, :], vars_map[changed_idx, :].unsqueeze(2)).squeeze(-1)
+            neighbored_var = self.var_var[changed_idx].sum(0).nonzero(as_tuple=True)[0]
+            n_neighbored_var = neighbored_var.shape[0]
 
-            nd = torch.where(nkd > 1, self.nnd_mask1[:, : n_idx, :], nkd).sum(1)
+            kkd = torch.matmul(self.cons_map[neighbored_var, changed_idx, :, :], vars_map[changed_idx, :].unsqueeze(2)).squeeze(-1)
+
+            kd = torch.where(kkd > 1, self.nnd_mask1[: n_neighbored_var, : n_idx, :], kkd).sum(1)
             # nd = (1 - torch.relu(1 - nkd)).sum(1)
 
-            vars_map = torch.where(nd != n_idx, self.nd_mask0, vars_map)
+            p_vars_map = torch.where(kd != n_idx, self.nd_mask0[: n_neighbored_var], vars_map[neighbored_var])
+            vars_map[neighbored_var] = p_vars_map
             # vars_map = torch.relu(nd - n_idx + 1) * vars_map
             # vars_map = torch.div(nd, n_idx, rounding_mode='floor') * vars_map
 
