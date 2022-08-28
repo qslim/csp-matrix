@@ -22,6 +22,7 @@ class ACEnforcer:
 
     def ac_enforcer(self, vars_map, changed_idx):
         n_idx = changed_idx.shape[0]
+        vars_map_pre = vars_map.sum(1)
         while n_idx != 0:
             self.ac_count += 1
 
@@ -35,17 +36,17 @@ class ACEnforcer:
             kd = torch.where(kkd > 1, self.nnd_mask1[: n_neighbored_var, : n_idx, :], kkd).sum(1)
             # nd = (1 - torch.relu(1 - nkd)).sum(1)
 
-            p_vars_map_pre = vars_map[neighbored_var]
-            p_vars_map = torch.where(kd != n_idx, self.nd_mask0[: n_neighbored_var], p_vars_map_pre)
+            p_vars_map = torch.where(kd != n_idx, self.nd_mask0[: n_neighbored_var], vars_map[neighbored_var])
             vars_map[neighbored_var] = p_vars_map
             # vars_map = torch.relu(nd - n_idx + 1) * vars_map
             # vars_map = torch.div(nd, n_idx, rounding_mode='floor') * vars_map
 
-            p_vars_map_sum = p_vars_map.sum(1)
-            if (p_vars_map_sum == self.n_mask0[: n_neighbored_var]).any():
+            vars_map_sum = vars_map.sum(1)
+            if (vars_map_sum == self.n_mask0).any():
                 return None
-            changed_idx = neighbored_var[(p_vars_map_sum != p_vars_map_pre.sum(1)).nonzero(as_tuple=True)[0]]
+            changed_idx = (vars_map_sum != vars_map_pre).nonzero(as_tuple=True)[0]
             n_idx = changed_idx.shape[0]
+            vars_map_pre = vars_map_sum
 
         return vars_map
 
