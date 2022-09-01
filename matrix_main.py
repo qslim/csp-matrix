@@ -1,5 +1,4 @@
 import jax.numpy as jnp
-import jax
 import time
 import pickle
 import sys
@@ -51,11 +50,9 @@ class BackTrackSearcher:
 
     def assignment(self, var_index, val_index, vars_pre):
         # self.count += 1
-        self.assign_mask.at[var_index, var_index].set(0)
-        vars_re = jnp.matmul(self.assign_mask, vars_pre)
-        self.assign_mask.at[var_index, var_index].set(1)
-        vars_re.at[var_index, val_index].set(1)
-        return vars_re
+        assign_mask = self.assign_mask.at[var_index, var_index].set(0)
+        vars_re = jnp.matmul(assign_mask, vars_pre)
+        return vars_re.at[var_index, val_index].set(1)
 
     def var_heuristics(self, vars_map):
         vars_size = vars_map.sum(1)
@@ -97,12 +94,10 @@ class BackTrackSearcher:
 
 
 random.seed(0)
-chosen_device = 'cuda'
-device = jax.default_device(chosen_device)
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('dom10-var500-den10-ts1661607900.dump', 5000)
+    ('dom10-var200-den10-ts1661607878.dump', 5000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
