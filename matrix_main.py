@@ -3,15 +3,23 @@ import time
 import pickle
 import sys
 import csv
+import random
 
 
 class ACEnforcer:
     def __init__(self, cons_map, n_vars, n_dom):
-        self.cons_map = cons_map
+        # self.cons_map = cons_map
         self.n_mask0 = torch.zeros(n_vars).to(device)
         self.nnd_mask1 = torch.ones((n_vars, n_vars, n_dom)).to(device)
         self.nd_mask0 = torch.zeros((n_vars, n_dom)).to(device)
         self.ac_count = 0
+
+        self.cons_map = torch.ones((n_vars, n_vars, n_dom, n_dom)).to(device)
+        for i in range(n_vars):
+            for j in range(i + 1, n_vars):
+                if random.randint(0, 50) == 0:
+                    self.cons_map[i][j] = cons_map[i][j]
+                    self.cons_map[j][i] = cons_map[j][i]
 
     def ac_enforcer(self, vars_map, changed_idx):
         n_idx = changed_idx.shape[0]
@@ -95,17 +103,13 @@ class BackTrackSearcher:
         return False
 
 
+random.seed(0)
 chosen_device = 'cuda'
 device = torch.device(chosen_device)
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('dom10-var100-den10-ts1661607461.dump', 20000),
-    ('dom10-var200-den10-ts1661607878.dump', 20000),
-    ('dom10-var300-den10-ts1661607884.dump', 20000),
-    ('dom10-var400-den10-ts1661607890.dump', 20000),
-    ('dom10-var500-den10-ts1661607900.dump', 20000),
-    ('dom10-var600-den10-ts1661607978.dump', 20000)
+    ('sparsedom10-var500-den1-seed0-ts1661767686.dump', 5000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
