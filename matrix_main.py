@@ -8,18 +8,18 @@ import random
 
 class ACEnforcer:
     def __init__(self, cons_map, n_vars, n_dom):
-        # self.cons_map = cons_map
+        self.cons_map = cons_map
         self.n_mask0 = torch.zeros(n_vars).to(device)
         self.nnd_mask1 = torch.ones((n_vars, n_vars, n_dom)).to(device)
         self.nd_mask0 = torch.zeros((n_vars, n_dom)).to(device)
         self.ac_count = 0
 
-        self.cons_map = torch.ones((n_vars, n_vars, n_dom, n_dom)).to(device)
-        for i in range(n_vars):
-            for j in range(i + 1, n_vars):
-                if random.randint(0, 50) == 0:
-                    self.cons_map[i][j] = cons_map[i][j]
-                    self.cons_map[j][i] = cons_map[j][i]
+        # self.cons_map = torch.ones((n_vars, n_vars, n_dom, n_dom)).to(device)
+        # for i in range(n_vars):
+        #     for j in range(i + 1, n_vars):
+        #         if random.randint(0, 50) == 0:
+        #             self.cons_map[i][j] = cons_map[i][j]
+        #             self.cons_map[j][i] = cons_map[j][i]
 
     def ac_enforcer(self, vars_map, changed_idx):
         n_idx = changed_idx.shape[0]
@@ -91,10 +91,7 @@ class BackTrackSearcher:
             self.answer = vars_map
             return True
 
-        var = vars_map[var_idx]
-        for i in range(self.n_dom):
-            if var[i] == 0:
-                continue
+        for i in vars_map[var_idx].nonzero(as_tuple=True)[0]:
             _vars_map = self.assignment(var_idx, i, vars_map)
             _vars_map = self.acer.ac_enforcer(_vars_map, changed_idx=torch.tensor([var_idx]))
             if self.dfs(level + 1, _vars_map):
