@@ -5,13 +5,13 @@ import sys
 import csv
 import numpy as np
 from numba.experimental import jitclass
-from numba import int32, float32
+from numba import int32, types, typed
 
-spec = [
-    ('pointer', int32),
-    ('dom', int32[:]),
-    ('idx', int32[:]),
-]
+spec = {
+    'pointer': int32,
+    'dom': int32[:],
+    'idx': int32[:]
+}
 
 
 @jitclass(spec)
@@ -41,23 +41,44 @@ class SparseDom(object):
         self.pointer = 0
 
 
-class BackTrackSearcher:
+spec2 = {
+    'cons_map': int32[:, :, :, :],
+    'vars_map': types.ListType(SparseDom.class_type.instance_type),
+    'N': int32,
+    'count': int32,
+    # 'answer': types.ListType(SparseDom.class_type.instance_type),
+
+    'heapSize': int32,
+    'heapList': int32[:],
+    'heapMap': int32[:],
+
+    'ts_v': int32[:],
+    'ts_c': int32[:, :],
+    'ts_global': int32,
+
+    'assign_map': int32[:],
+    'revise_count': int32,
+}
+
+
+@jitclass(spec2)
+class BackTrackSearcher(object):
     def __init__(self, rel_, vars_, N):
         self.cons_map = rel_
         self.vars_map = vars_
         self.N = N
         self.count = 0
-        self.answer = None
+        # self.answer = None
 
         self.heapSize = 0
-        self.heapList = [-1 for _ in range(N)]
-        self.heapMap = [-1 for _ in range(N)]
+        self.heapList = np.full(N, -1, dtype=np.int32)
+        self.heapMap = np.full(N, -1, dtype=np.int32)
 
-        self.ts_v = [1 for _ in range(N)]
-        self.ts_c = [[0 for _ in range(N)] for _ in range(N)]
+        self.ts_v = np.ones(N, dtype=np.int32)
+        self.ts_c = np.zeros((N, N), dtype=np.int32)
         self.ts_global = 2
 
-        self.assign_map = [0 for _ in range(N)]
+        self.assign_map = np.zeros(N, dtype=np.int32)
 
         self.revise_count = 0
 
@@ -198,7 +219,7 @@ class BackTrackSearcher:
             if self.count >= cutoff:
                 return True
         if level == self.N:
-            self.answer = self.vars_map
+            # self.answer = self.vars_map
             return True
 
         if not self.ac_enforcer(var_ids):
@@ -207,7 +228,7 @@ class BackTrackSearcher:
         # var_index = self.var_heuristics()
         var_index = level
         if var_index == -1:
-            self.answer = self.vars_map
+            # self.answer = self.vars_map
             return True
 
         # backup
@@ -224,7 +245,7 @@ class BackTrackSearcher:
             self.vars_map[var_index].assign(i)
             self.ts_v[var_index] = self.ts_global
             self.ts_global += 1
-            if self.dfs(level + 1, [var_index]):
+            if self.dfs(level + 1, np.array([var_index])):
                 return True
             for j in range(self.N):
                 self.vars_map[j].pointer = backup_vars[j]
@@ -264,7 +285,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
             line = SparseDom(max_domain)
             variables_map.append(line)
 
-        bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
+        bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), num_variables)
 
         ticks = time.time()
 
@@ -274,7 +295,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         #         print(ii.dom)
         # else:
         #     print("no answer...")
-        satisfied = bs.dfs(0, [i for i in range(num_variables)])
+        satisfied = bs.dfs(0, np.arange(num_variables, dtype=np.int32))
         duration = time.time() - ticks
         count = bs.count
         ac_per = bs.revise_count / bs.count
