@@ -58,6 +58,8 @@ spec2 = {
 
     'assign_map': int32[:],
     'revise_count': int32,
+
+    'vars_stack': int32[:, :],
 }
 
 
@@ -81,6 +83,8 @@ class BackTrackSearcher(object):
         self.assign_map = np.zeros(N, dtype=np.int32)
 
         self.revise_count = 0
+
+        self.vars_stack = np.zeros((N, N), dtype=np.int32)
 
     def push(self, x):
         pos = self.heapSize
@@ -169,6 +173,15 @@ class BackTrackSearcher(object):
                     min_dom = self.vars_map[i].pointer
         return min_index
 
+    def backup_vars(self, level):
+        for i in range(self.N):
+            self.vars_stack[level][i] = self.vars_map[i].pointer
+
+    def restore_vars(self, level):
+        for i in range(self.N):
+            self.vars_map[i].pointer = self.vars_stack[level][i]
+            self.ts_v[i] = 0
+
     def revise(self, x, y):
         self.revise_count += 1
         con_map = self.cons_map[x][y]
@@ -253,16 +266,40 @@ class BackTrackSearcher(object):
         self.assign_map[var_index] = 0
         return False
 
+    def main_search2(self):
+        if not self.ac_enforcer(np.arange(num_variables, dtype=np.int32)):
+            return False
+        level = 0
+        while level >= 0:
+            self.backup_vars(level)
+            self.vars_map[level].assign(self.vars_map[level].dom[0])
+            self.count += 1
+            if self.count % 100 == 0:
+                print(level, self.count)
+                if self.count >= cutoff:
+                    return True
+            self.ts_v[level] = self.ts_global
+            self.ts_global += 1
+            if not self.ac_enforcer([level]):
+                self.restore_vars(level)
+                self.vars_map[level].delete(0)
+                while self.vars_map[level].pointer < 0:
+                    level = level - 1
+                    self.restore_vars(level)
+                    self.vars_map[level].delete(0)
+                    if level < 0:
+                        return False
+            else:
+                level = level + 1
+                if level == self.N - 1:
+                    return True
+        return False
+
 
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('dom10-var100-den10-ts1661607461.dump', 20000),
-    ('dom10-var200-den10-ts1661607878.dump', 20000),
-    ('dom10-var300-den10-ts1661607884.dump', 20000),
-    ('dom10-var400-den10-ts1661607890.dump', 20000),
-    ('dom10-var500-den10-ts1661607900.dump', 20000),
-    ('dom10-var600-den10-ts1661607978.dump', 20000)
+    ('dom10-var100-den10-seed0-ts1662958482.dump', 20000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
@@ -295,7 +332,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         #         print(ii.dom)
         # else:
         #     print("no answer...")
-        satisfied = bs.dfs(0, np.arange(num_variables, dtype=np.int32))
+        satisfied = bs.main_search2()
         duration = time.time() - ticks
         count = bs.count
         ac_per = bs.revise_count / bs.count
