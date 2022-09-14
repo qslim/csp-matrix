@@ -52,6 +52,7 @@ class BackTrackSearcher:
         self.revise_count = 0
 
         self.vars_stack = [[0 for _ in range(self.N)] for _ in range(self.N)]
+        self.ptr_stack = [0 for _ in range(self.N)]
 
     def push(self, x):
         pos = self.heapSize
@@ -286,11 +287,43 @@ class BackTrackSearcher:
                     return True
         return False
 
+    def main_search3(self):
+        if not self.ac_enforcer([i for i in range(num_variables)]):
+            return False
+        level = 0
+        while level >= 0:
+            self.backup_vars(level)
+            ptr = self.ptr_stack[level]
+            while ptr <= self.vars_map[level].pointer:
+                self.vars_map[level].assign(self.vars_map[level].dom[ptr])
+                self.count += 1
+                if self.count % 100 == 0:
+                    print(level, self.count)
+                    if self.count >= cutoff:
+                        return True
+                self.ts_v[level] = self.ts_global
+                self.ts_global += 1
+                if self.ac_enforcer([level]):
+                    self.ptr_stack[level] = ptr + 1
+                    level = level + 1
+                    if level == self.N:
+                        return True
+                    break
+                self.restore_vars(level)
+                ptr = ptr + 1
+            if ptr == self.vars_map[level].pointer + 1:
+                self.ptr_stack[level] = 0
+                level = level - 1
+                if level < 0:
+                    return False
+                self.restore_vars(level)
+        return False
+
 
 bm_name = None
 cutoff = -1
 bm_cut = [
-    ('dom10-var100-den10-seed0-ts1662958482.dump', 20000)
+    ('dom10-var100-den10-seed0-ts1662958482.dump', 2000)
 ]
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
@@ -323,7 +356,8 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         #         print(ii.dom)
         # else:
         #     print("no answer...")
-        satisfied = bs.main_search2()
+        satisfied = bs.main_search3()
+        # satisfied = bs.dfs(0, [i for i in range(num_variables)])
         duration = time.time() - ticks
         count = bs.count
         ac_per = bs.revise_count / bs.count
