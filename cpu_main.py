@@ -3,6 +3,8 @@ from utils.build_matrix import parser
 import pickle
 import sys
 import csv
+import random
+from utils.neighbors import build_neighbors
 
 
 class SparseDom:
@@ -32,7 +34,7 @@ class SparseDom:
 
 
 class BackTrackSearcher:
-    def __init__(self, rel_, vars_, N):
+    def __init__(self, rel_, vars_, nei_, N):
         self.cons_map = rel_
         self.vars_map = vars_
         self.N = N
@@ -53,6 +55,7 @@ class BackTrackSearcher:
 
         self.vars_stack = [[0 for _ in range(self.N)] for _ in range(self.N)]
         self.ptr_stack = [0 for _ in range(self.N)]
+        self.neighbors = nei_
 
     def push(self, x):
         pos = self.heapSize
@@ -183,7 +186,7 @@ class BackTrackSearcher:
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in range(self.N):
+            for i in self.neighbors[var]:
                 if var != i and self.ts_v[var] > self.ts_c[var][i]:
                     if self.revise(var, i) or (self.assign_map[i] == 0 and self.revise(i, var)):
                         self.heap_clear()
@@ -320,6 +323,7 @@ class BackTrackSearcher:
         return False
 
 
+random.seed(0)
 bm_name = None
 cutoff = -1
 bm_cut = [
@@ -346,7 +350,7 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
             line = SparseDom(max_domain)
             variables_map.append(line)
 
-        bs = BackTrackSearcher(constraints_map, variables_map, num_variables)
+        bs = BackTrackSearcher(constraints_map, variables_map, build_neighbors(num_variables, 0.5), num_variables)
 
         ticks = time.time()
 

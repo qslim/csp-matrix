@@ -6,6 +6,8 @@ import csv
 import numpy as np
 from numba.experimental import jitclass
 from numba import int32, types, typed
+import random
+from utils.neighbors import build_neighbors
 
 spec = {
     'pointer': int32,
@@ -61,12 +63,13 @@ spec2 = {
 
     'vars_stack': int32[:, :],
     'ptr_stack': int32[:],
+    'neighbors': types.ListType(types.Array(int32, 1, 'C')),
 }
 
 
 @jitclass(spec2)
 class BackTrackSearcher(object):
-    def __init__(self, rel_, vars_, N):
+    def __init__(self, rel_, vars_, nei_, N):
         self.cons_map = rel_
         self.vars_map = vars_
         self.N = N
@@ -87,6 +90,7 @@ class BackTrackSearcher(object):
 
         self.vars_stack = np.zeros((N, N), dtype=np.int32)
         self.ptr_stack = np.zeros(N, dtype=np.int32)
+        self.neighbors = nei_
 
     def push(self, x):
         pos = self.heapSize
@@ -217,7 +221,7 @@ class BackTrackSearcher(object):
 
         while self.heapSize > 0:
             var = self.pop()
-            for i in range(self.N):
+            for i in self.neighbors[var]:
                 if var != i and self.ts_v[var] > self.ts_c[var][i]:
                     if self.revise(var, i) or (self.assign_map[i] == 0 and self.revise(i, var)):
                         self.heap_clear()
@@ -330,6 +334,7 @@ class BackTrackSearcher(object):
         return False
 
 
+random.seed(0)
 bm_name = None
 cutoff = -1
 bm_cut = [
@@ -356,7 +361,11 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
             line = SparseDom(max_domain)
             variables_map.append(line)
 
-        bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), num_variables)
+        neighbors = build_neighbors(num_variables, 0.5)
+        for i in range(num_variables):
+            neighbors[i] = np.array(neighbors[i], dtype=np.int32)
+
+        bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), typed.List(neighbors), num_variables)
 
         ticks = time.time()
 
