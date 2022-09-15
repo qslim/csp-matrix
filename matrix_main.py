@@ -4,6 +4,8 @@ import pickle
 import sys
 import csv
 import random
+import numpy as np
+from utils.neighbors import build_neighbors
 
 
 class ACEnforcer:
@@ -13,13 +15,6 @@ class ACEnforcer:
         self.nnd_mask1 = torch.ones((n_vars, n_vars, n_dom)).to(device)
         self.nd_mask0 = torch.zeros((n_vars, n_dom)).to(device)
         self.ac_count = 0
-
-        # self.cons_map = torch.ones((n_vars, n_vars, n_dom, n_dom)).to(device)
-        # for i in range(n_vars):
-        #     for j in range(i + 1, n_vars):
-        #         if random.randint(0, 50) == 0:
-        #             self.cons_map[i][j] = cons_map[i][j]
-        #             self.cons_map[j][i] = cons_map[j][i]
 
     def ac_enforcer(self, vars_map, changed_idx):
         n_idx = changed_idx.shape[0]
@@ -118,10 +113,17 @@ with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         cutoff = bc[1]
 
         f = open('rand_benchmark/' + bm_name, 'rb')
-        constraints_map = pickle.load(f)
-        max_domain = len(constraints_map[0][0])
-        num_variables = len(constraints_map)
+        constraints = pickle.load(f)
+        max_domain = len(constraints[0][0])
+        num_variables = len(constraints)
         f.close()
+
+        neighbors = build_neighbors(num_variables, 0.5)
+        constraints_map = np.ones((num_variables, num_variables, max_domain, max_domain), dtype=np.int)
+        for i in range(num_variables):
+            for j in neighbors[i]:
+                constraints_map[i][j] = constraints[i][j]
+                constraints_map[j][i] = constraints[j][i]
 
         constraints_map = torch.tensor(constraints_map).type(torch.float)
 
