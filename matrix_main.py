@@ -103,7 +103,7 @@ cutoff = -1
 bm_cut = [
     ('sparsedom10-var500-den1-seed0-ts1661767686.dump', 5000)
 ]
-cons_density = 0.5
+cons_density = 1.0
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
     writer = csv.writer(mycsv)
@@ -120,7 +120,7 @@ with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         f.close()
 
         neighbors = build_neighbors(num_variables, cons_density)
-        constraints_map = np.ones((num_variables, num_variables, max_domain, max_domain), dtype=np.int)
+        constraints_map = [[[[1 for _ in range(max_domain)] for _ in range(max_domain)] for _ in range(num_variables)] for _ in range(num_variables)]
         for i in range(num_variables):
             for j in neighbors[i]:
                 constraints_map[i][j] = constraints[i][j]
