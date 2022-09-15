@@ -103,6 +103,7 @@ cutoff = -1
 bm_cut = [
     ('sparsedom10-var500-den1-seed0-ts1661767686.dump', 5000)
 ]
+cons_density = 0.5
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
     writer = csv.writer(mycsv)
@@ -118,7 +119,7 @@ with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
         num_variables = len(constraints)
         f.close()
 
-        neighbors = build_neighbors(num_variables, 0.5)
+        neighbors = build_neighbors(num_variables, cons_density)
         constraints_map = np.ones((num_variables, num_variables, max_domain, max_domain), dtype=np.int)
         for i in range(num_variables):
             for j in neighbors[i]:
@@ -136,8 +137,9 @@ with open('cuda_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
             variables_map.append(line)
         variables_map = torch.tensor(variables_map).type(torch.float)
 
-        print("cons shape:", constraints_map.shape, " vars shape:", variables_map.shape)
+        # print("cons shape:", constraints_map.shape, " vars shape:", variables_map.shape)
         print(constraints_map.type(), " ", variables_map.type())
+        print(bm_name, "| constraint density:", cons_density)
 
         variables_map = variables_map.to(device)
         constraints_map = constraints_map.to(device)

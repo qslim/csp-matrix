@@ -50,7 +50,7 @@ def constraints_generator(max_dom, num_vars, density):
 
 max_domain = int(sys.argv[1])
 num_variables = int(sys.argv[2])
-con_density = int(sys.argv[3])
+con_density = float(sys.argv[3])
 seed = sys.argv[4]
 random.seed(seed)
 print('max_domain:', max_domain, 'num_variables:', num_variables, 'con_density:', con_density, 'seed:', seed)

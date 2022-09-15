@@ -340,6 +340,7 @@ cutoff = -1
 bm_cut = [
     ('dom10-var100-den10-seed0-ts1662958482.dump', 2000)
 ]
+cons_density = 0.5
 csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
 with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
     writer = csv.writer(mycsv)
@@ -361,12 +362,12 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
             line = SparseDom(max_domain)
             variables_map.append(line)
 
-        neighbors = build_neighbors(num_variables, 0.5)
+        neighbors = build_neighbors(num_variables, cons_density)
         for i in range(num_variables):
             neighbors[i] = np.array(neighbors[i], dtype=np.int32)
 
+        print(bm_name, "| constraint density:", cons_density)
         bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), typed.List(neighbors), num_variables)
-
         ticks = time.time()
 
         # if bs.dfs(0, None):
