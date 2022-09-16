@@ -48,7 +48,7 @@ class BackTrackSearcher:
         self.assign_mask = torch.eye(n_vars).to(device)
         self.n_mask10000 = (torch.ones(n_vars) * 10000).to(device)
         self.count = 0
-        self.answer = None
+        # self.answer = None
 
     def assignment(self, var_index, val_index, vars_pre):
         # self.count += 1
@@ -73,7 +73,7 @@ class BackTrackSearcher:
             if self.count >= cutoff:
                 return True
         if level == self.n_vars:
-            self.answer = vars_map
+            # self.answer = vars_map
             return True
 
         if vars_map is None:
@@ -81,9 +81,9 @@ class BackTrackSearcher:
 
         # var_idx = self.var_heuristics(vars_map)
         var_idx = level
-        if var_idx == -1:
-            self.answer = vars_map
-            return True
+        # if var_idx == -1:
+        #     # self.answer = vars_map
+        #     return True
 
         for i in vars_map[var_idx].nonzero(as_tuple=True)[0]:
             _vars_map = self.assignment(var_idx, i, vars_map)

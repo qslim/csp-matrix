@@ -39,7 +39,7 @@ class BackTrackSearcher:
         self.vars_map = vars_
         self.N = N
         self.count = 0
-        self.answer = None
+        # self.answer = None
 
         self.heapSize = 0
         self.heapList = [-1 for _ in range(N)]
@@ -203,7 +203,7 @@ class BackTrackSearcher:
             if self.count >= cutoff:
                 return True
         if level == self.N:
-            self.answer = self.vars_map
+            # self.answer = self.vars_map
             return True
 
         if not self.ac_enforcer(var_ids):
@@ -211,9 +211,9 @@ class BackTrackSearcher:
 
         # var_index = self.var_heuristics()
         var_index = level
-        if var_index == -1:
-            self.answer = self.vars_map
-            return True
+        # if var_index == -1:
+        #     # self.answer = self.vars_map
+        #     return True
 
         # backup
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
@@ -356,12 +356,6 @@ with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
 
         ticks = time.time()
 
-        # if bs.dfs(0, None):
-        #     print("got answer...")
-        #     for ii in bs.answer:
-        #         print(ii.dom)
-        # else:
-        #     print("no answer...")
         satisfied = bs.main_search3()
         # satisfied = bs.dfs(0, [i for i in range(num_variables)])
         duration = time.time() - ticks

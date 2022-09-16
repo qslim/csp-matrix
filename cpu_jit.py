@@ -245,9 +245,9 @@ class BackTrackSearcher(object):
 
         # var_index = self.var_heuristics()
         var_index = level
-        if var_index == -1:
-            # self.answer = self.vars_map
-            return True
+        # if var_index == -1:
+        #     # self.answer = self.vars_map
+        #     return True
 
         # backup
         backup_vars = [self.vars_map[i].pointer for i in range(self.N)]
