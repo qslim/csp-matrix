@@ -2,6 +2,7 @@ import random
 
 
 def build_neighbors(num_vars, density):
+    random.seed(0)
     is_cons = [[False for _ in range(num_vars)] for _ in range(num_vars)]
     for i in range(num_vars):
         for j in range(i + 1, num_vars):

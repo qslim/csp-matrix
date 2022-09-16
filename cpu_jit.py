@@ -6,7 +6,6 @@ import csv
 import numpy as np
 from numba.experimental import jitclass
 from numba import int32, types, typed
-import random
 from utils.neighbors import build_neighbors
 
 spec = {
@@ -334,62 +333,49 @@ class BackTrackSearcher(object):
         return False
 
 
-random.seed(0)
-bm_name = None
-cutoff = -1
-bm_cut = [
-    ('dom10-var100-den10-seed0-ts1662958482.dump', 2000)
+bm_all = [
+    ('dom10-var100-den0.8-seed0-ts1663308519.dump', 500, 0.5),
+    ('dom10-var100-den0.8-seed0-ts1663308519.dump', 500, 0.25),
 ]
-cons_density = 0.5
-csvheader = ['name', 'duration', 'count', 'ac_per', 'satisfied']
-with open('trad_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
+with open('jit_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
     writer = csv.writer(mycsv)
-    writer.writerow(csvheader)
+    writer.writerow(['Name', 'Cons_den', 'Duration', 'Assign', 'Ac_iter', 'Satisfied'])
+    mycsv.flush()
+for bc in bm_all:
+    bm_name = bc[0]
+    cutoff = bc[1]
+    cons_density = bc[2]
 
-    for bc in bm_cut:
-        bm_name = bc[0]
-        cutoff = bc[1]
+    f = open('rand_benchmark/' + bm_name, 'rb')
+    constraints_map = pickle.load(f)
+    max_domain = len(constraints_map[0][0])
+    num_variables = len(constraints_map)
+    f.close()
 
-        f = open('rand_benchmark/' + bm_name, 'rb')
-        constraints_map = pickle.load(f)
-        max_domain = len(constraints_map[0][0])
-        num_variables = len(constraints_map)
-        f.close()
+    # build vars_map
+    variables_map = []
+    for _ in range(num_variables):
+        line = SparseDom(max_domain)
+        variables_map.append(line)
 
-        # build vars_map
-        variables_map = []
-        for _ in range(num_variables):
-            line = SparseDom(max_domain)
-            variables_map.append(line)
+    neighbors = build_neighbors(num_variables, cons_density)
+    for i in range(num_variables):
+        neighbors[i] = np.array(neighbors[i], dtype=np.int32)
 
-        neighbors = build_neighbors(num_variables, cons_density)
-        for i in range(num_variables):
-            neighbors[i] = np.array(neighbors[i], dtype=np.int32)
+    print(bm_name, "| constraint density:", cons_density)
+    bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), typed.List(neighbors), num_variables)
+    ticks = time.time()
+    satisfied = bs.main_search3()
+    duration = time.time() - ticks
+    count = bs.count
+    ac_iter = bs.revise_count / bs.count
+    print("Duration =", duration)
+    print(count)
+    print(ac_iter)
+    print(satisfied)
 
-        print(bm_name, "| constraint density:", cons_density)
-        bs = BackTrackSearcher(np.array(constraints_map, dtype=np.int32), typed.List(variables_map), typed.List(neighbors), num_variables)
-        ticks = time.time()
-
-        # if bs.dfs(0, None):
-        #     print("got answer...")
-        #     for ii in bs.answer:
-        #         print(ii.dom)
-        # else:
-        #     print("no answer...")
-        satisfied = bs.main_search3()
-        duration = time.time() - ticks
-        count = bs.count
-        ac_per = bs.revise_count / bs.count
-        print("Duration =", duration)
-        print(count)
-        print(ac_per)
-        print(satisfied)
-
-        csv_data = [
-            bm_name, duration, count, ac_per, satisfied
-        ]
-        writer.writerow(csv_data)
+    with open('jit_results.csv', 'a', encoding='UTF8', newline='') as mycsv:
+        writer = csv.writer(mycsv)
+        writer.writerow([bm_name, cons_density, duration, count, ac_iter, satisfied])
         mycsv.flush()
 
-        # print("Node =", bs.count)
-        # print("Iterations =", bs.acer.count)
