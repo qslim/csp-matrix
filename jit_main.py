@@ -334,8 +334,35 @@ class BackTrackSearcher(object):
 
 
 bm_all = [
-    ('dom10-var100-den0.8-seed0-ts1663308519.dump', 500, 0.5),
-    ('dom10-var100-den0.8-seed0-ts1663308519.dump', 500, 0.25),
+    ('dom10-var100-den0.6-seed0-ts1663245590.dump', 20000, 0.1),
+    ('dom10-var100-den0.7-seed0-ts1663246083.dump', 20000, 0.25),
+    ('dom10-var100-den0.9-seed0-ts1663246471.dump', 20000, 0.5),
+    ('dom10-var100-den0.9-seed0-ts1663246471.dump', 20000, 0.75),
+    ('dom10-var100-den0.9-seed0-ts1663246471.dump', 20000, 1.0),
+
+    ('dom10-var250-den0.7-seed0-ts1663304709.dump', 20000, 0.1),
+    ('dom10-var250-den0.8-seed0-ts1663304880.dump', 20000, 0.25),
+    ('dom10-var250-den0.9-seed0-ts1663305019.dump', 20000, 0.5),
+    ('dom10-var250-den0.9-seed0-ts1663305019.dump', 20000, 0.75),
+    ('dom10-var250-den0.9-seed0-ts1663305019.dump', 20000, 1.0),
+
+    ('dom10-var500-den0.7-seed0-ts1663298038.dump', 20000, 0.1),
+    ('dom10-var500-den0.8-seed0-ts1663298187.dump', 20000, 0.25),
+    ('dom10-var500-den0.9-seed0-ts1663298354.dump', 20000, 0.5),
+    ('dom10-var500-den0.9-seed0-ts1663298354.dump', 20000, 0.75),
+    ('dom10-var500-den0.9-seed0-ts1663298354.dump', 20000, 1.0),
+
+    ('dom10-var750-den0.8-seed0-ts1663305372.dump', 20000, 0.1),
+    ('dom10-var750-den0.8-seed0-ts1663305372.dump', 20000, 0.25),
+    ('dom10-var750-den0.9-seed0-ts1663305586.dump', 20000, 0.5),
+    ('dom10-var750-den0.9-seed0-ts1663305586.dump', 20000, 0.75),
+    ('dom10-var750-den0.95-seed0-ts1663305869.dump', 20000, 1.0),
+
+    ('dom10-var1000-den0.8-seed0-ts1663250612.dump', 20000, 0.1),
+    ('dom10-var1000-den0.9-seed0-ts1663304383.dump', 20000, 0.25),
+    ('dom10-var1000-den0.95-seed0-ts1663248381.dump', 20000, 0.5),
+    ('dom10-var1000-den0.95-seed0-ts1663248381.dump', 20000, 0.75),
+    ('dom10-var1000-den0.95-seed0-ts1663248381.dump', 20000, 1.0),
 ]
 with open('jit_results.csv', 'w', encoding='UTF8', newline='') as mycsv:
     writer = csv.writer(mycsv)
